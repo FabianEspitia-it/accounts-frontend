@@ -36,7 +36,7 @@ export default function Hero() {
         <Fade triggerOnce>
           <div className="text-center mb-14">
             <h2 className="text-5xl md:text-6xl font-extrabold italic text-[#f1054d] drop-shadow-[0_0_10px_#f1054d]">
-              Accounts Premium
+              Accounts Premiummm
             </h2>
             <p className="text-lg md:text-xl text-gray-300 mt-4 max-w-xl mx-auto">
               Selecciona el servicio que deseas utilizar

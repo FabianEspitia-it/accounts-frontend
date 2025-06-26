@@ -10,8 +10,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Accounts Premium",
-  description: "Las cuentas más premium del parche",
+  title: "Accounts Premiummm",
+  description: "Las cuentas más premiummm del parche",
 };
 
 export default async function RootLayout({

@@ -86,11 +86,11 @@ export default function SessionNetflixCode() {
         <section className="flex items-center justify-center min-h-screen relative z-10">
           <div className="text-center rounded-lg p-10 max-w-md w-full border border-[#f1054d] bg-black">
             <h1 className="text-[#f1054d] drop-shadow-[0_0_10px_#f1054d] font-black italic transform -rotate-2 text-5xl mb-6">
-              Accounts Premium
+              Accounts Premiummm
             </h1>
             <p className="text-white text-lg mb-6">
               Por favor digita el correo electrónico de la cuenta y la
-              contraseña premium
+              contraseña premiummm
             </p>
 
             {responseMessage && (
@@ -101,7 +101,7 @@ export default function SessionNetflixCode() {
               <input
                 className="border-2 border-[#f1054d] focus:outline-none bg-black text-white placeholder-gray-400 rounded-lg px-4 py-3 w-full transition"
                 type="email"
-                placeholder="accounts@premium.com"
+                placeholder="accounts@premiummm.com"
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
