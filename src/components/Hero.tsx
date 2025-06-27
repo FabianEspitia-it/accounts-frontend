@@ -62,7 +62,7 @@ export default function Hero() {
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold italic text-[#f1054d] drop-shadow-[0_0_15px_#f1054d]">
               Accounts Premiummm
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-300 mt-2 sm:mt-4 max-w-2xl mx-auto px-4">
+            <p className="text-base sm:text-lg md:text-xl text-white mt-2 sm:mt-4 max-w-2xl mx-auto px-4">
               Selecciona el servicio que deseas utilizar
             </p>
           </div>
