@@ -55,29 +55,29 @@ export default function Hero() {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white py-20 px-4">
+    <section className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white py-8 sm:py-20 px-4">
       <div className="container mx-auto">
         <Fade triggerOnce>
-          <div className="text-center mb-16">
-            <h2 className="text-6xl font-extrabold italic text-[#f1054d] drop-shadow-[0_0_15px_#f1054d]">
+          <div className="text-center mb-8 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold italic text-[#f1054d] drop-shadow-[0_0_15px_#f1054d]">
               Accounts Premiummm
             </h2>
-            <p className="text-xl text-gray-300 mt-4 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-300 mt-2 sm:mt-4 max-w-2xl mx-auto px-4">
               Selecciona el servicio que deseas utilizar
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-10">
+          <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-6 md:gap-10">
             {platforms.map(({ name, color }) => (
               <div key={name} className="relative text-center">
                 <button
                   onClick={() => toggleMenu(name)}
-                  className="flex items-center justify-center gap-3 text-white text-xl font-semibold px-10 py-5 rounded-full bg-gray-800 hover:bg-gray-700 transition-all border-2 shadow-lg"
+                  className="flex items-center justify-center gap-2 sm:gap-3 text-white text-sm sm:text-lg md:text-xl font-semibold px-4 sm:px-6 md:px-10 py-3 sm:py-4 md:py-5 rounded-full bg-gray-800 hover:bg-gray-700 transition-all border-2 shadow-lg w-full sm:w-auto"
                   style={{ borderColor: color }}
                 >
                   {name}
                   <svg
-                    className={`w-5 h-5 transition-transform duration-300 ${
+                    className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 ${
                       openMenu === name ? "rotate-180" : ""
                     }`}
                     fill="none"
@@ -94,13 +94,13 @@ export default function Hero() {
                 </button>
 
                 {openMenu === name && (
-                  <div className="absolute left-1/2 -translate-x-1/2 z-20 mt-4 w-72 bg-gray-900/95 border border-gray-600 rounded-xl shadow-xl backdrop-blur-md">
+                  <div className="absolute left-1/2 -translate-x-1/2 z-20 mt-2 sm:mt-4 w-64 sm:w-72 bg-gray-900/95 border border-gray-600 rounded-xl shadow-xl backdrop-blur-md">
                     <ul className="divide-y divide-gray-700">
                       {servicesByPlatform[name].map((service) => (
                         <li key={service.id}>
                           <a
                             href={service.href}
-                            className="block px-6 py-4 text-base text-center hover:bg-gray-800 transition-all"
+                            className="block px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base text-center hover:bg-gray-800 transition-all"
                             style={{ color }}
                           >
                             {service.label}
