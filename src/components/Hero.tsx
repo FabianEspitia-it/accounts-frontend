@@ -1,95 +1,128 @@
+import { useState } from "react";
 import { Fade } from "react-awesome-reveal";
 
 export default function Hero() {
-  const services = [
-    { label: "Actualiza hogar (NETFLIX)", href: "/update_home", id: 1 },
-    {
-      label: "Código temporal (estoy de viaje) (NETFLIX)",
-      href: "/temporal_access",
-      id: 2,
-    },
-    {
-      label: "Código de inicio de sesión (NETFLIX)",
-      href: "/session_netflix_code",
-      id: 3,
-    },
-    {
-      label: "Restablecimiento de contraseña (NETFLIX)",
-      href: "/password_reset",
-      id: 4,
-    },
-    {
-      label: "Código de inicio de sesión (DISNEY+)",
-      href: "/session_code",
-      id: 5,
-    },
-    {
-      label: "Solicitud de enlace de inicio de sesión (NETFLIX)",
-      href: "/new_session",
-      id: 6,
-    },
-    {
-      label: "Código de inicio de sesión (PRIME VIDEO)",
-      href: "/session_prime",
-      id: 7,
-    },
+  const [openMenu, setOpenMenu] = useState(null);
+
+  const servicesByPlatform = {
+    NETFLIX: [
+      { label: "Actualiza hogar", href: "/update_home", id: 1 },
+      {
+        label: "Código temporal (estoy de viaje)",
+        href: "/temporal_access",
+        id: 2,
+      },
+      {
+        label: "Código de inicio de sesión",
+        href: "/session_netflix_code",
+        id: 3,
+      },
+      {
+        label: "Restablecimiento de contraseña",
+        href: "/password_reset",
+        id: 4,
+      },
+      {
+        label: "Solicitud de enlace de inicio de sesión",
+        href: "/new_session",
+        id: 6,
+      },
+    ],
+    DISNEY: [
+      { label: "Código de inicio de sesión", href: "/session_code", id: 5 },
+    ],
+    PRIME: [
+      { label: "Código de inicio de sesión", href: "/session_prime", id: 7 },
+    ],
+  };
+
+  const platforms = [
+    { name: "NETFLIX", color: "#f1054d" },
+    { name: "DISNEY", color: "#65f1ff" },
+    { name: "PRIME", color: "#8ff165" },
   ];
 
+  const toggleMenu = (platform) => {
+    setOpenMenu((prev) => (prev === platform ? null : platform));
+  };
+
   return (
-    <section className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white py-16">
-      <div className="container mx-auto px-4">
+    <section className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white py-20 px-4">
+      <div className="container mx-auto">
         <Fade triggerOnce>
-          <div className="text-center mb-14">
-            <h2 className="text-5xl md:text-6xl font-extrabold italic text-[#f1054d] drop-shadow-[0_0_10px_#f1054d]">
+          <div className="text-center mb-16">
+            <h2 className="text-6xl font-extrabold italic text-[#f1054d] drop-shadow-[0_0_15px_#f1054d]">
               Accounts Premiummm
             </h2>
-            <p className="text-lg md:text-xl text-gray-300 mt-4 max-w-xl mx-auto">
+            <p className="text-xl text-gray-300 mt-4 max-w-2xl mx-auto">
               Selecciona el servicio que deseas utilizar
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {services.map((service) => {
-              const isNetflix = service.label.includes("NETFLIX");
-
-              const hoverBorderClass = isNetflix
-                ? "hover:border-[#f1054d]"
-                : "hover:border-[#65f1ff]";
-              const hoverShadowClass = isNetflix
-                ? "hover:shadow-[#f1054d]/40"
-                : "hover:shadow-[#65f1ff]/40";
-              const hoverTextClass = isNetflix
-                ? "group-hover:text-[#f1054d]"
-                : "group-hover:text-[#65f1ff]";
-              const hoverBarClass = isNetflix
-                ? "group-hover:bg-[#f1054d]"
-                : "group-hover:bg-[#65f1ff]";
-
-              return (
-                <a
-                  key={service.id}
-                  href={service.href}
-                  className={`relative group p-6 rounded-2xl transition-all duration-300 ease-in-out
-                    bg-gradient-to-br from-gray-800/80 to-gray-900 border border-gray-700
-                    shadow-md hover:-translate-y-1 ${hoverBorderClass} ${hoverShadowClass}`}
-                  aria-label={service.label}
+          <div className="flex flex-wrap justify-center gap-10">
+            {platforms.map(({ name, color }) => (
+              <div key={name} className="relative text-center">
+                <button
+                  onClick={() => toggleMenu(name)}
+                  className="flex items-center justify-center gap-3 text-white text-xl font-semibold px-10 py-5 rounded-full bg-gray-800 hover:bg-gray-700 transition-all border-2 shadow-lg"
+                  style={{ borderColor: color }}
                 >
-                  <div className="h-full flex flex-col justify-center items-center text-center space-y-4">
-                    <h3
-                      className={`text-lg font-semibold text-white transition-colors duration-300 ${hoverTextClass}`}
-                    >
-                      {service.label}
-                    </h3>
-                    <div
-                      className={`w-full h-1 rounded-full bg-gray-700 transition-all duration-300 ${hoverBarClass}`}
+                  {name}
+                  <svg
+                    className={`w-5 h-5 transition-transform duration-300 ${
+                      openMenu === name ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 9l-7 7-7-7"
                     />
+                  </svg>
+                </button>
+
+                {openMenu === name && (
+                  <div className="absolute left-1/2 -translate-x-1/2 z-20 mt-4 w-72 bg-gray-900/95 border border-gray-600 rounded-xl shadow-xl backdrop-blur-md">
+                    <ul className="divide-y divide-gray-700">
+                      {servicesByPlatform[name].map((service) => (
+                        <li key={service.id}>
+                          <a
+                            href={service.href}
+                            className="block px-6 py-4 text-base text-center hover:bg-gray-800 transition-all"
+                            style={{ color }}
+                          >
+                            {service.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </a>
-              );
-            })}
+                )}
+              </div>
+            ))}
           </div>
         </Fade>
       </div>
+
+      <style>{`
+        .animate-fadeIn {
+          animation: fadeIn 0.25s ease-in-out;
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: scaleY(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scaleY(1);
+          }
+        }
+      `}</style>
     </section>
   );
 }
