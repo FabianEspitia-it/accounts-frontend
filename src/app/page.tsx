@@ -3,8 +3,6 @@
 import Hero from "@/components/Hero";
 import Image from "next/image";
 
-// comment to deploy again
-
 export default function Home() {
   return (
     <div className="min-h-screen bg-black">
