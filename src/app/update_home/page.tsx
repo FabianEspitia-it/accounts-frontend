@@ -57,8 +57,8 @@ export default function UpdateHome() {
             <PacmanLoader color="#f1054d" size={55} />
           </div>
           <p className="pt-4 font-semibold text-white">
-            Premium está trayendo el link para actualizar hogar, por favor
-            espera unos segundos
+            Estamos trayendo el link para actualizar hogar, por favor espera
+            unos segundos
           </p>
         </div>
       </div>

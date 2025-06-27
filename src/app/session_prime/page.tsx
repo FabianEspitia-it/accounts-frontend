@@ -57,7 +57,7 @@ export default function SessionPrimeCode() {
             <RotateSpinner color="#00FF00" size={55} />
           </div>
           <p className="pt-4 font-semibold text-white">
-            Premium está trayendo el código, por favor espera unos segundos
+            Estamos trayendo el código, por favor espera unos segundos
           </p>
         </div>
       </div>

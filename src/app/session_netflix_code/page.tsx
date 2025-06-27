@@ -64,7 +64,7 @@ export default function SessionNetflixCode() {
             <PacmanLoader color="#f1054d" size={55} />
           </div>
           <p className="pt-4 font-semibold text-white">
-            Premium está trayendo el código, por favor espera unos segundos
+            Estamos trayendo el código, por favor espera unos segundos
           </p>
         </div>
       </div>
