@@ -25,7 +25,7 @@ export default function SessionNetflixCode() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_PRIME}/session_code/`,
+        `${process.env.NEXT_PUBLIC_HBO}/session_code/`,
         {
           method: "POST",
           headers: {
