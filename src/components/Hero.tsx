@@ -1,10 +1,18 @@
 import { useState } from "react";
 import { Fade } from "react-awesome-reveal";
 
-export default function Hero() {
-  const [openMenu, setOpenMenu] = useState(null);
+type Platform = "NETFLIX" | "DISNEY" | "PRIME";
 
-  const servicesByPlatform = {
+interface Service {
+  label: string;
+  href: string;
+  id: number;
+}
+
+export default function Hero() {
+  const [openMenu, setOpenMenu] = useState<Platform | null>(null);
+
+  const servicesByPlatform: Record<Platform, Service[]> = {
     NETFLIX: [
       { label: "Actualiza hogar", href: "/update_home", id: 1 },
       {
@@ -36,13 +44,13 @@ export default function Hero() {
     ],
   };
 
-  const platforms = [
+  const platforms: { name: Platform; color: string }[] = [
     { name: "NETFLIX", color: "#f1054d" },
     { name: "DISNEY", color: "#65f1ff" },
     { name: "PRIME", color: "#8ff165" },
   ];
 
-  const toggleMenu = (platform) => {
+  const toggleMenu = (platform: Platform) => {
     setOpenMenu((prev) => (prev === platform ? null : platform));
   };
 
