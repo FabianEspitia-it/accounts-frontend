@@ -38,6 +38,7 @@ export default function Hero() {
     ],
     DISNEY: [
       { label: "Código de inicio de sesión", href: "/session_code", id: 5 },
+      { label: "Código de hogar", href: "/disney_home_code", id: 9 },
     ],
     PRIME: [
       { label: "Código de inicio de sesión", href: "/session_prime", id: 7 },
