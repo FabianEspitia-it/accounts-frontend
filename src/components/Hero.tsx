@@ -43,7 +43,14 @@ export default function Hero() {
     PRIME: [
       { label: "Código de inicio de sesión", href: "/session_prime", id: 7 },
     ],
-    HBO: [{ label: "Código de inicio de sesión", href: "/session_hbo", id: 8 }],
+    HBO: [
+      { label: "Código de inicio de sesión", href: "/session_hbo", id: 8 },
+      {
+        label: "Reestablecimiento de contraseña",
+        href: "/restor_hbo_password",
+        id: 9,
+      },
+    ],
   };
 
   const platforms: { name: Platform; color: string }[] = [
