@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Fade } from "react-awesome-reveal";
 
-type Platform = "NETFLIX" | "DISNEY" | "PRIME" | "HBO" | "YOUTUBE";
+type Platform =
+  | "NETFLIX"
+  | "DISNEY"
+  | "PRIME"
+  | "HBO"
+  | "YOUTUBE"
+  | "UNIVERSAL";
 
 interface Service {
   label: string;
@@ -54,6 +60,10 @@ export default function Hero() {
     YOUTUBE: [
       { label: "Código de inicio de sesión", href: "/youtube_code", id: 10 },
     ],
+
+    UNIVERSAL: [
+      { label: "Código de activación", href: "/activation_code", id: 11 },
+    ],
   };
 
   const platforms: { name: Platform; color: string }[] = [
@@ -62,6 +72,7 @@ export default function Hero() {
     { name: "PRIME", color: "#8ff165" },
     { name: "HBO", color: "#f1c165" },
     { name: "YOUTUBE", color: "#ff0000" },
+    { name: "UNIVERSAL", color: "#EBFF0D" },
   ];
 
   const toggleMenu = (platform: Platform) => {
