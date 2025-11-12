@@ -3,12 +3,12 @@
 import { Fade } from "react-awesome-reveal";
 import { FormEvent, useState } from "react";
 import { PacmanLoader } from "react-spinners";
-import { toast } from "react-toastify";
+//import { toast } from "react-toastify";
 import Image from "next/image";
 
 export default function SessionCode() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  //const [email, setEmail] = useState("");
+  //const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState("");
 
@@ -18,13 +18,18 @@ export default function SessionCode() {
     setLoading(true);
     setResponseMessage("");
 
-    const data = {
+    {
+      /**    const data = {
       email: email,
       password: password,
-    };
+    }; */
+    }
 
     try {
-      const response = await fetch(
+      {
+        /**
+        
+        const response = await fetch(
         `${process.env.NEXT_PUBLIC_DISNEY}/home_code/`,
         {
           method: "POST",
@@ -48,6 +53,9 @@ export default function SessionCode() {
             theme: "dark",
           }
         );
+      }
+        
+        */
       }
     } catch (error) {
       console.log(error);
@@ -98,7 +106,10 @@ export default function SessionCode() {
             )}
 
             <form className="space-y-4" onSubmit={sendData}>
-              <input
+              {/**
+               * 
+               * 
+               * <input
                 className="border-2 border-[#f1054d] focus:outline-none bg-black text-white placeholder-gray-400 rounded-lg px-4 py-3 w-full transition"
                 type="email"
                 placeholder="accounts@premiummm.com"
@@ -122,6 +133,10 @@ export default function SessionCode() {
               >
                 Enviar
               </button>
+
+               * 
+               * 
+               */}
 
               <a
                 href="/"
