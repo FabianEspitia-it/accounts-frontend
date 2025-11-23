@@ -36,7 +36,7 @@ export default function TemporalAccess() {
 
       if (response.ok) {
         const data = await response.json();
-        setResponseMessage(data.code);
+        setResponseMessage(`Código de activación: ${data.code}`);
         toast.success("Gracias por preferirnos :D", {
           theme: "dark",
         });
