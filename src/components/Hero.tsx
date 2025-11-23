@@ -22,7 +22,7 @@ export default function Hero() {
 
   const servicesByPlatform: Record<Platform, Service[]> = {
     NETFLIX: [
-      { label: "Actualiza hogar", href: "/update_home", id: 1 },
+      { label: "Actualiza hogar", href: "/netflix_update_home", id: 1 },
       {
         label: "Código temporal (estoy de viaje)",
         href: "/netflix_temporal_access",
