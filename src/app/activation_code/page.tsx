@@ -8,6 +8,7 @@ import Image from "next/image";
 
 export default function TemporalAccess() {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState<null | string>(null);
 
@@ -18,16 +19,18 @@ export default function TemporalAccess() {
 
     const data = {
       email: email,
+      password: password,
     };
 
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_UNIVERSAL}/session_code/${data.email}`,
         {
-          method: "GET",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify(data),
         }
       );
 
@@ -87,13 +90,12 @@ export default function TemporalAccess() {
               Accounts Premiummm
             </h1>
             <p className="text-white text-lg mb-6">
-              Por favor digita el correo electrónico de la cuenta
+              Por favor digita el correo electrónico de la cuenta y la
+              contraseña premiummm
             </p>
 
             {responseMessage && (
-              <p className="text-white text-lg mb-5">
-                Código de activación: {responseMessage}
-              </p>
+              <p className="text-[#4b2c98] text-lg my-2">{responseMessage}</p>
             )}
 
             <form className="space-y-4" onSubmit={sendData}>
@@ -104,6 +106,15 @@ export default function TemporalAccess() {
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
+              />
+
+              <input
+                className="border-2 border-[#f1054d] focus:outline-none bg-black text-white placeholder-gray-400 rounded-lg px-4 py-3 w-full transition"
+                type="password"
+                placeholder="Contraseña"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
               />
 
               <button
