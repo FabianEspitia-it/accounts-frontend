@@ -25,52 +25,72 @@ export default function Hero() {
       { label: "Actualiza hogar", href: "/update_home", id: 1 },
       {
         label: "Código temporal (estoy de viaje)",
-        href: "/temporal_access",
+        href: "/netflix_temporal_access",
         id: 2,
       },
       {
         label: "Código de inicio de sesión",
-        href: "/session_netflix_code",
+        href: "/netflix_session_code",
         id: 3,
       },
       {
         label: "Restablecimiento de contraseña",
-        href: "/password_reset",
+        href: "/netflix_password_reset",
         id: 4,
       },
       {
         label: "Solicitud de enlace de inicio de sesión",
-        href: "/new_session",
+        href: "/netflix_new_session",
         id: 6,
       },
     ],
     DISNEY: [
-      { label: "Código de inicio de sesión", href: "/session_code", id: 5 },
+      {
+        label: "Código de inicio de sesión",
+        href: "/disney_session_code",
+        id: 5,
+      },
       { label: "Código de hogar", href: "/disney_home_code", id: 9 },
     ],
     PRIME: [
-      { label: "Código de inicio de sesión", href: "/session_prime", id: 7 },
+      {
+        label: "Código de inicio de sesión",
+        href: "/prime_session_code",
+        id: 7,
+      },
     ],
     HBO: [
-      { label: "Código de inicio de sesión", href: "/session_hbo", id: 8 },
+      {
+        label: "Código de inicio de sesión",
+        href: "/hbo_session_code",
+        id: 8,
+      },
       {
         label: "Reestablecimiento de contraseña",
-        href: "/restor_hbo_password",
+        href: "/hbo_reset_password",
         id: 9,
       },
     ],
     YOUTUBE: [
-      { label: "Código de inicio de sesión", href: "/youtube_code", id: 10 },
+      {
+        label: "Código de inicio de sesión",
+        href: "/youtube_session_code",
+        id: 10,
+      },
     ],
 
     UNIVERSAL: [
-      { label: "Código de activación", href: "/activation_code", id: 11 },
+      {
+        label: "Código de activación",
+        href: "/universal_activation_code",
+        id: 11,
+      },
     ],
 
     SPOTIFY: [
       {
         label: "Código de inicio de sesión",
-        href: "/session_spotify_code",
+        href: "/spotify_session_code",
         id: 12,
       },
     ],
