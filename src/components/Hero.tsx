@@ -8,7 +8,8 @@ type Platform =
   | "PRIME"
   | "HBO"
   | "YOUTUBE"
-  | "UNIVERSAL";
+  | "UNIVERSAL"
+  | "SPOTIFY";
 
 interface Service {
   label: string;
@@ -65,6 +66,14 @@ export default function Hero() {
     UNIVERSAL: [
       { label: "Código de activación", href: "/activation_code", id: 11 },
     ],
+
+    SPOTIFY: [
+      {
+        label: "Código de inicio de sesión",
+        href: "/session_spotify_code",
+        id: 12,
+      },
+    ],
   };
 
   const platforms: { name: Platform; color: string }[] = [
@@ -74,6 +83,7 @@ export default function Hero() {
     { name: "HBO", color: "#f1c165" },
     { name: "YOUTUBE", color: "#ff0000" },
     { name: "UNIVERSAL", color: "#EBFF0D" },
+    { name: "SPOTIFY", color: "#1ED760" },
   ];
 
   const toggleMenu = (platform: Platform) => {

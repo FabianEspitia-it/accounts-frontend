@@ -6,16 +6,17 @@ import { PacmanLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import Image from "next/image";
 
-export default function TemporalAccess() {
+export default function SessionCode() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [responseMessage, setResponseMessage] = useState<null | string>(null);
+  const [responseMessage, setResponseMessage] = useState("");
 
   async function sendData(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     setLoading(true);
+    setResponseMessage("");
 
     const data = {
       email: email,
@@ -24,7 +25,7 @@ export default function TemporalAccess() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_UNIVERSAL}/session_code/${data.email}`,
+        `${process.env.NEXT_PUBLIC_SPOTIFY}/session_code/`,
         {
           method: "POST",
           headers: {
@@ -36,18 +37,17 @@ export default function TemporalAccess() {
 
       if (response.ok) {
         const data = await response.json();
-        setResponseMessage(`Código de activación: ${data.code}`);
+        setResponseMessage(`Código de sesión: ${data.code}`);
         toast.success("Gracias por preferirnos :D", {
           theme: "dark",
         });
-
-        console.log(data);
       } else {
-        toast.error("Algo salio mal, por favor verifica el correo", {
-          theme: "dark",
-        });
-
-        console.log("Error en la petición");
+        toast.error(
+          "Algo salió mal, por favor verifica el correo y la contraseña",
+          {
+            theme: "dark",
+          }
+        );
       }
     } catch (error) {
       console.log(error);
@@ -64,8 +64,7 @@ export default function TemporalAccess() {
             <PacmanLoader color="#f1054d" size={55} />
           </div>
           <p className="pt-4 font-semibold text-white">
-            Estamos trayendo el código de activación, por favor espera unos
-            segundos
+            Estamos trayendo el código, por favor espera unos segundos
           </p>
         </div>
       </div>
