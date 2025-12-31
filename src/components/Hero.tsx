@@ -9,7 +9,8 @@ type Platform =
   | "HBO"
   | "YOUTUBE"
   | "UNIVERSAL"
-  | "SPOTIFY";
+  | "SPOTIFY"
+  | "CRUNCHYROLL";
 
 interface Service {
   label: string;
@@ -94,6 +95,14 @@ export default function Hero() {
         id: 12,
       },
     ],
+
+    CRUNCHYROLL: [
+      {
+        label: "Inicio de sesión",
+        href: "/crunchyroll_link",
+        id: 13,
+      },
+    ],
   };
 
   const platforms: { name: Platform; color: string }[] = [
@@ -104,6 +113,7 @@ export default function Hero() {
     { name: "YOUTUBE", color: "#ff0000" },
     { name: "UNIVERSAL", color: "#EBFF0D" },
     { name: "SPOTIFY", color: "#1ED760" },
+    { name: "CRUNCHYROLL", color: "#F47521" },
   ];
 
   const toggleMenu = (platform: Platform) => {
