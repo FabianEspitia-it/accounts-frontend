@@ -1,7 +1,6 @@
 "use client";
-{/**
-  
-  import { Fade } from "react-awesome-reveal";
+
+import { Fade } from "react-awesome-reveal";
 import { FormEvent, useState } from "react";
 import { PacmanLoader } from "react-spinners";
 import { toast } from "react-toastify";
@@ -77,10 +76,10 @@ export default function SessionCode() {
       <Image
         src="/images/gengar.jpg"
         alt="Background"
-        layout="fill"
-        objectFit="cover"
+        fill
+        sizes="100vw"
         quality={100}
-        className="z-0"
+        className="z-0 object-cover"
       />
       <div className="absolute inset-0 bg-black opacity-50"></div>
       <Fade triggerOnce cascade>
@@ -136,6 +135,4 @@ export default function SessionCode() {
       </Fade>
     </div>
   );
-}  
-  
-  */}
+}
