@@ -9,7 +9,7 @@ type Platform =
   | "HBO"
   | "YOUTUBE"
   | "UNIVERSAL"
-  | "SPOTIFY"
+  //| "SPOTIFY"
   | "CRUNCHYROLL";
 
 interface Service {
@@ -88,13 +88,13 @@ export default function Hero() {
       },
     ],
 
-    SPOTIFY: [
-      {
-        label: "Código de inicio de sesión",
-        href: "/spotify_session_code",
-        id: 12,
-      },
-    ],
+    //SPOTIFY: [
+      //{
+        //label: "Código de inicio de sesión",
+        //href: "/spotify_session_code",
+        //id: 12,
+      //},
+    //],
 
     CRUNCHYROLL: [
       {
@@ -112,7 +112,7 @@ export default function Hero() {
     { name: "HBO", color: "#f1c165" },
     { name: "YOUTUBE", color: "#ff0000" },
     { name: "UNIVERSAL", color: "#EBFF0D" },
-    { name: "SPOTIFY", color: "#1ED760" },
+    //{ name: "SPOTIFY", color: "#1ED760" },
     { name: "CRUNCHYROLL", color: "#F47521" },
   ];
 
