@@ -98,7 +98,9 @@ export default function SessionCode() {
             )}
 
             <form className="space-y-4" onSubmit={sendData}>
-              <input
+
+            {/** 
+             * <input
                 className="border-2 border-[#f1054d] focus:outline-none bg-black text-white placeholder-gray-400 rounded-lg px-4 py-3 w-full transition"
                 type="email"
                 placeholder="accounts@premiummm.com"
@@ -122,6 +124,15 @@ export default function SessionCode() {
               >
                 Enviar
               </button>
+             * 
+             * 
+             * 
+             * 
+             * 
+             * 
+             * 
+            */}
+              
 
               <a
                 href="/"
