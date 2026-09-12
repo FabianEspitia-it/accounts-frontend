@@ -4,9 +4,12 @@ import { Fade } from "react-awesome-reveal";
 import { FormEvent, useState } from "react";
 import { PacmanLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { requestNetflixUpdateHome } from "@/lib/streaming-codes-client";
 
 export default function UpdateHome() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState<null | string>(null);
@@ -16,27 +19,19 @@ export default function UpdateHome() {
 
     setLoading(true);
 
-    const data = {
-      email: email,
-    };
-
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_NETFLIX}/home_code/${data.email}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const result = await requestNetflixUpdateHome(email);
 
-      if (response.ok) {
-        const data = await response.json();
-        setResponseMessage(data.link);
+      if (result.ok) {
+        setResponseMessage(result.data.link);
         toast.success("Gracias por preferirnos :D", {
           theme: "dark",
         });
+      } else if (result.status === 401) {
+        toast.error("Tu sesión expiró, vuelve a iniciar sesión", {
+          theme: "dark",
+        });
+        router.replace("/login");
       } else {
         toast.error("Algo salio mal, por favor verifica el correo", {
           theme: "dark",

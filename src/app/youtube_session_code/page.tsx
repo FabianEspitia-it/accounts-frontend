@@ -4,9 +4,12 @@ import { Fade } from "react-awesome-reveal";
 import { FormEvent, useState } from "react";
 import { PacmanLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { requestYoutubeSessionCode } from "@/lib/streaming-codes-client";
 
 export default function TemporalAccess() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState<null | string>(null);
@@ -16,35 +19,23 @@ export default function TemporalAccess() {
 
     setLoading(true);
 
-    const data = {
-      email: email,
-    };
-
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_YOUTUBE}/session_code/${data.email}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const result = await requestYoutubeSessionCode(email);
 
-      if (response.ok) {
-        const data = await response.json();
-        setResponseMessage(data.code);
+      if (result.ok) {
+        setResponseMessage(result.data.code);
         toast.success("Gracias por preferirnos :D", {
           theme: "dark",
         });
-
-        console.log(data);
+      } else if (result.status === 401) {
+        toast.error("Tu sesión expiró, vuelve a iniciar sesión", {
+          theme: "dark",
+        });
+        router.replace("/login");
       } else {
         toast.error("Algo salio mal, por favor verifica el correo", {
           theme: "dark",
         });
-
-        console.log("Error en la petición");
       }
     } catch (error) {
       console.log(error);

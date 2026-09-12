@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Fade } from "react-awesome-reveal";
 import Image from "next/image";
+import LogoutButton from "./LogoutButton";
 
 type Platform =
   | "NETFLIX"
@@ -122,6 +123,12 @@ export default function Hero() {
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white pb-8 sm:py-20 px-4">
+      <div className="pointer-events-none fixed right-4 top-4 z-30 sm:right-8 sm:top-6">
+        <div className="pointer-events-auto">
+          <LogoutButton />
+        </div>
+      </div>
+
       <div className="container mx-auto">
         <Fade triggerOnce>
           <div className="text-center mb-8 sm:mb-16">

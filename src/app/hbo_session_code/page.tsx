@@ -4,11 +4,13 @@ import { Fade } from "react-awesome-reveal";
 import { FormEvent, useState } from "react";
 import { PacmanLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { requestHboSessionCode } from "@/lib/streaming-codes-client";
 
 export default function SessionNetflixCode() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState("");
 
@@ -18,36 +20,23 @@ export default function SessionNetflixCode() {
     setLoading(true);
     setResponseMessage("");
 
-    const data = {
-      email: email,
-      password: password,
-    };
-
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_HBO}/session_code/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const result = await requestHboSessionCode(email);
 
-      if (response.ok) {
-        const data = await response.json();
-        setResponseMessage(`Código de sesión: ${data.code}`);
+      if (result.ok) {
+        setResponseMessage(`Código de sesión: ${result.data.code}`);
         toast.success("Gracias por preferirnos :D", {
           theme: "dark",
         });
+      } else if (result.status === 401) {
+        toast.error("Tu sesión expiró, vuelve a iniciar sesión", {
+          theme: "dark",
+        });
+        router.replace("/login");
       } else {
-        toast.error(
-          "Algo salió mal, por favor verifica el correo y la contraseña",
-          {
-            theme: "dark",
-          }
-        );
+        toast.error("Algo salió mal, por favor verifica el correo", {
+          theme: "dark",
+        });
       }
     } catch (error) {
       console.log(error);
@@ -89,8 +78,7 @@ export default function SessionNetflixCode() {
               Accounts Premiummm
             </h1>
             <p className="text-white text-lg mb-6">
-              Por favor digita el correo electrónico de la cuenta y la
-              contraseña premiummm
+              Por favor digita el correo electrónico de la cuenta
             </p>
 
             {responseMessage && (
@@ -105,15 +93,6 @@ export default function SessionNetflixCode() {
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-              />
-
-              <input
-                className="border-2 border-[#f1054d] focus:outline-none bg-black text-white placeholder-gray-400 rounded-lg px-4 py-3 w-full transition"
-                type="password"
-                placeholder="Contraseña"
-                required
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
               />
 
               <button
