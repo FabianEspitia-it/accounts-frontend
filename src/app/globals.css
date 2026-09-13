@@ -33,3 +33,72 @@ body {
     background-image: url('/images/disney_logo.jpeg');
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Dashboard — mismo lenguaje visual que accounts-platform-frontend.
+ *
+ * Todo va scopeado bajo `.dashboard-root`: este globals.css lo comparte el
+ * sitio público, que sigue en Poppins y con su propio fondo claro.
+ * ------------------------------------------------------------------------- */
+
+.dashboard-root {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+
+/* `font-mono` dentro del dashboard usa Geist Mono (teléfonos y fechas en tablas). */
+.dashboard-root .font-mono {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, monospace;
+}
+
+/*
+ * <select> nativo: el popup del SO lee color-scheme del contenedor, no solo el
+ * color del texto, así que sin esto queda blanco sobre blanco en Windows.
+ */
+.dashboard-root select {
+  color-scheme: dark;
+}
+
+.dashboard-root select option {
+  background-color: #07060e;
+  color: #f0eef5;
+}
+
+/* Scrollbar */
+.dashboard-root ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.dashboard-root ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dashboard-root ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+.dashboard-root ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Selection */
+.dashboard-root ::selection {
+  background: rgba(255, 0, 85, 0.3);
+  color: white;
+}
+
+/* Contenedor con borde suave (sin blur ni animaciones) */
+.dashboard-root .glass-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Autofill de Chrome dentro del dashboard: sin lavanda sobre fondo oscuro. */
+.dashboard-root input:-webkit-autofill,
+.dashboard-root input:-webkit-autofill:hover,
+.dashboard-root input:-webkit-autofill:focus {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92);
+  transition: background-color 9999s ease-out 0s;
+  box-shadow: inset 0 0 0 1000px rgb(7 6 14);
+}

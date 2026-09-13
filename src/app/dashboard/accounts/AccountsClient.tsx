@@ -4,6 +4,18 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 import { UserRole, roleLabel } from "@/lib/roles";
+import Modal from "../_components/Modal";
+import {
+  BTN_ACCENT,
+  BTN_DANGER,
+  BTN_GHOST,
+  BTN_NEUTRAL,
+  CARD,
+  INPUT_CLASS,
+  LABEL_CLASS,
+  PAGER,
+  TH,
+} from "../_components/ui";
 
 type Account = {
   id: string;
@@ -427,29 +439,26 @@ export default function AccountsClient() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="animate-fade-in">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-white md:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-white">
             Cuentas
-          </h2>
-          <p className="mt-1 text-sm text-white/70">
+          </h1>
+          <p className="mt-1.5 text-sm text-white/35">
             Administra las cuentas del sistema.
           </p>
         </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={openBulk}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-premium_pink px-4 py-2.5 text-sm font-semibold text-panel_black transition hover:opacity-90"
-          >
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={openBulk} className={BTN_ACCENT}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth={2}
+              strokeWidth={1.5}
               stroke="currentColor"
-              className="h-4 w-4"
+              aria-hidden
+              className="size-4"
             >
               <path
                 strokeLinecap="round"
@@ -459,18 +468,15 @@ export default function AccountsClient() {
             </svg>
             Subir cuentas
           </button>
-          <button
-            type="button"
-            onClick={openLink}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-premium_pink/30 px-4 py-2.5 text-sm font-semibold text-white/80 transition hover:bg-premium_pink/10"
-          >
+          <button type="button" onClick={openLink} className={BTN_NEUTRAL}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth={2}
+              strokeWidth={1.5}
               stroke="currentColor"
-              className="h-4 w-4"
+              aria-hidden
+              className="size-4"
             >
               <path
                 strokeLinecap="round"
@@ -483,17 +489,18 @@ export default function AccountsClient() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-premium_pink/20 bg-panel_black">
-        <div className="flex flex-col gap-3 border-b border-premium_pink/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className={`overflow-hidden ${CARD}`}>
+        <div className="flex flex-col gap-3 border-b border-white/[0.06] px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-xs">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-premium_pink/70">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-white/25">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth={1.8}
+                strokeWidth={1.5}
                 stroke="currentColor"
-                className="h-4 w-4"
+                aria-hidden
+                className="size-4"
               >
                 <path
                   strokeLinecap="round"
@@ -506,28 +513,31 @@ export default function AccountsClient() {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar por correo"
-              className="w-full rounded-lg border border-premium_pink/30 bg-panel_black py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+              placeholder="Buscar por correo…"
+              className={`${INPUT_CLASS} pl-9`}
             />
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-white/60">
-              {total === 0 ? "Sin resultados" : `Mostrando ${rangeStart}–${rangeEnd} de ${total.toLocaleString("es-CO")}`}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-[0.75rem] text-white/20">
+              {total === 0
+                ? "Sin resultados"
+                : `${rangeStart}–${rangeEnd} de ${total.toLocaleString("es-CO")}`}
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={goPrev}
                 disabled={!canPrev}
-                className="inline-flex items-center gap-1 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs font-medium text-white/80 hover:bg-premium_pink/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className={PAGER}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   stroke="currentColor"
-                  className="h-4 w-4"
+                  aria-hidden
+                  className="size-3.5"
                 >
                   <path
                     strokeLinecap="round"
@@ -537,23 +547,24 @@ export default function AccountsClient() {
                 </svg>
                 Anterior
               </button>
-              <span className="text-xs text-white/50">
+              <span className="px-1 text-[0.75rem] font-medium text-white/25">
                 {currentPage} / {totalPages}
               </span>
               <button
                 type="button"
                 onClick={goNext}
                 disabled={!canNext}
-                className="inline-flex items-center gap-1 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs font-medium text-white/80 hover:bg-premium_pink/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className={PAGER}
               >
                 Siguiente
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   stroke="currentColor"
-                  className="h-4 w-4"
+                  aria-hidden
+                  className="size-3.5"
                 >
                   <path
                     strokeLinecap="round"
@@ -568,23 +579,23 @@ export default function AccountsClient() {
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[420px] text-left text-sm">
-            <thead className="bg-premium_pink/5 text-xs uppercase tracking-wide text-premium_pink/80">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Correo</th>
-                <th className="px-4 py-3 text-right font-semibold">Acciones</th>
+            <thead className="border-b border-white/[0.06]">
+              <tr className="bg-white/[0.03]">
+                <th className={TH}>Correo</th>
+                <th className={`${TH} text-right`}>Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-premium_pink/10">
+            <tbody className="divide-y divide-white/[0.04]">
               {loading && accounts.length === 0 && <SkeletonRows />}
 
               {!loading && errorMsg && (
                 <tr>
-                  <td colSpan={2} className="px-4 py-10 text-center">
-                    <p className="text-sm text-red-300">{errorMsg}</p>
+                  <td colSpan={2} className="px-4 py-12 text-center">
+                    <p className="text-sm text-red-300/80">{errorMsg}</p>
                     <button
                       type="button"
                       onClick={reload}
-                      className="mt-3 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs text-premium_pink hover:bg-premium_pink/10"
+                      className={`mt-4 ${BTN_NEUTRAL}`}
                     >
                       Reintentar
                     </button>
@@ -596,7 +607,7 @@ export default function AccountsClient() {
                 <tr>
                   <td
                     colSpan={2}
-                    className="px-4 py-10 text-center text-sm text-white/60"
+                    className="px-4 py-12 text-center text-sm text-white/20"
                   >
                     {debouncedQuery
                       ? "Ninguna cuenta coincide con la búsqueda."
@@ -609,32 +620,33 @@ export default function AccountsClient() {
                 accounts.map((account) => (
                   <tr
                     key={account.id}
-                    className="transition hover:bg-premium_pink/5"
+                    className="transition-colors hover:bg-white/[0.02]"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-premium_pink/15 text-sm font-semibold uppercase text-premium_pink">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.08] text-[0.75rem] font-bold uppercase text-[#ff0055] ring-1 ring-[#ff0055]/15">
                           {account.email?.[0] ?? "?"}
                         </div>
-                        <span className="font-medium text-white">
-                          {account.email}
-                        </span>
+                        <span className="text-white/75">{account.email}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1">
                         <button
                           type="button"
                           onClick={() => openEdit(account)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs font-medium text-premium_pink transition hover:bg-premium_pink/10"
+                          className="rounded-lg p-1.5 text-white/25 transition-all duration-200 hover:bg-white/[0.08] hover:text-white/60"
+                          aria-label="Editar cuenta"
+                          title="Editar cuenta"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
-                            strokeWidth={1.8}
+                            strokeWidth={1.5}
                             stroke="currentColor"
-                            className="h-4 w-4"
+                            aria-hidden
+                            className="size-4"
                           >
                             <path
                               strokeLinecap="round"
@@ -642,20 +654,22 @@ export default function AccountsClient() {
                               d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"
                             />
                           </svg>
-                          Editar
                         </button>
                         <button
                           type="button"
                           onClick={() => setConfirmDelete(account)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-red-400/30 px-3 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/10"
+                          className="rounded-lg p-1.5 text-white/25 transition-all duration-200 hover:bg-red-500/[0.08] hover:text-red-400"
+                          aria-label="Eliminar cuenta"
+                          title="Eliminar cuenta"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
-                            strokeWidth={1.8}
+                            strokeWidth={1.5}
                             stroke="currentColor"
-                            className="h-4 w-4"
+                            aria-hidden
+                            className="size-4"
                           >
                             <path
                               strokeLinecap="round"
@@ -663,7 +677,6 @@ export default function AccountsClient() {
                               d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
                             />
                           </svg>
-                          Eliminar
                         </button>
                       </div>
                     </td>
@@ -682,7 +695,7 @@ export default function AccountsClient() {
         >
           <form onSubmit={handleBulkUpload} className="space-y-4">
             <label className="block">
-              <span className="mb-1 block text-xs font-medium text-premium_pink">
+              <span className={LABEL_CLASS}>
                 Correos (uno por línea o separados por comas)
               </span>
               <textarea
@@ -692,24 +705,20 @@ export default function AccountsClient() {
                 value={bulkText}
                 onChange={(e) => setBulkText(e.target.value)}
                 placeholder={"cuenta1@example.com\ncuenta2@example.com\ncuenta3@example.com"}
-                className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                className={`${INPUT_CLASS} resize-y`}
               />
             </label>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setBulkOpen(false)}
                 disabled={bulkUploading}
-                className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10 disabled:opacity-60"
+                className={BTN_GHOST}
               >
                 Cancelar
               </button>
-              <button
-                type="submit"
-                disabled={bulkUploading}
-                className="rounded-lg bg-premium_pink px-4 py-2 text-sm font-semibold text-panel_black transition hover:opacity-90 disabled:opacity-60"
-              >
+              <button type="submit" disabled={bulkUploading} className={BTN_ACCENT}>
                 {bulkUploading ? "Subiendo…" : "Subir cuentas"}
               </button>
             </div>
@@ -725,9 +734,7 @@ export default function AccountsClient() {
         >
           <form onSubmit={handleEdit} className="space-y-4">
             <label className="block">
-              <span className="mb-1 block text-xs font-medium text-premium_pink">
-                Correo
-              </span>
+              <span className={LABEL_CLASS}>Correo</span>
               <input
                 type="email"
                 required
@@ -735,24 +742,20 @@ export default function AccountsClient() {
                 value={editEmail}
                 onChange={(e) => setEditEmail(e.target.value)}
                 placeholder="cuenta@correo.com"
-                className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                className={INPUT_CLASS}
               />
             </label>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setEditTarget(null)}
                 disabled={saving}
-                className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10 disabled:opacity-60"
+                className={BTN_GHOST}
               >
                 Cancelar
               </button>
-              <button
-                type="submit"
-                disabled={saving}
-                className="rounded-lg bg-premium_pink px-4 py-2 text-sm font-semibold text-panel_black transition hover:opacity-90 disabled:opacity-60"
-              >
+              <button type="submit" disabled={saving} className={BTN_ACCENT}>
                 {saving ? "Guardando…" : "Guardar cambios"}
               </button>
             </div>
@@ -766,19 +769,19 @@ export default function AccountsClient() {
           onClose={() => (!deletingId ? setConfirmDelete(null) : undefined)}
           title="Eliminar cuenta"
         >
-          <p className="text-sm text-white/80">
+          <p className="text-sm text-white/50">
             ¿Seguro que deseas eliminar la cuenta{" "}
-            <span className="font-semibold text-white">
+            <span className="font-medium text-white/80">
               {confirmDelete.email}
             </span>
             ? Esta acción no se puede deshacer.
           </p>
-          <div className="mt-6 flex justify-end gap-2">
+          <div className="mt-6 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={() => setConfirmDelete(null)}
               disabled={deletingId !== null}
-              className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10 disabled:opacity-60"
+              className={BTN_GHOST}
             >
               Cancelar
             </button>
@@ -786,7 +789,7 @@ export default function AccountsClient() {
               type="button"
               onClick={() => void handleDelete(confirmDelete)}
               disabled={deletingId !== null}
-              className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-60"
+              className={BTN_DANGER}
             >
               {deletingId !== null ? "Eliminando…" : "Sí, eliminar"}
             </button>
@@ -799,18 +802,17 @@ export default function AccountsClient() {
         <Modal
           onClose={() => (!linking ? setLinkOpen(false) : undefined)}
           title="Vincular usuario con cuentas"
+          size="lg"
         >
           <form onSubmit={handleLink} className="space-y-4">
             <div className="relative">
-              <span className="mb-1 block text-xs font-medium text-premium_pink">
-                Correo del usuario
-              </span>
+              <span className={LABEL_CLASS}>Correo del usuario</span>
               {selectedUser ? (
-                <div className="flex items-center justify-between rounded-lg border border-premium_pink/30 bg-premium_pink/10 px-3 py-2">
-                  <span className="flex flex-wrap items-center gap-2 text-sm text-white">
+                <div className="flex items-center justify-between gap-2 rounded-xl border border-[#ff0055]/25 bg-[#ff0055]/[0.06] px-3.5 py-2">
+                  <span className="flex flex-wrap items-center gap-2 text-[0.8rem] text-white/80">
                     {selectedUser.email}
                     {selectedUser.role && (
-                      <span className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-[11px] text-white/70">
+                      <span className="inline-flex items-center rounded-lg bg-white/[0.05] px-2 py-0.5 text-[0.7rem] font-medium text-white/50 ring-1 ring-inset ring-white/[0.08]">
                         {roleLabel(selectedUser.role)}
                       </span>
                     )}
@@ -818,9 +820,10 @@ export default function AccountsClient() {
                   <button
                     type="button"
                     onClick={clearUser}
-                    className="ml-2 rounded p-0.5 text-white/60 hover:text-white"
+                    className="shrink-0 rounded-lg p-1 text-white/30 transition hover:bg-white/[0.06] hover:text-white/60"
+                    aria-label="Quitar usuario"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-4 w-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden className="size-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -833,11 +836,11 @@ export default function AccountsClient() {
                     value={userQuery}
                     onChange={(e) => handleUserQueryChange(e.target.value)}
                     placeholder="Escribe el correo del usuario"
-                    className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 pr-8 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                    className={`${INPUT_CLASS} pr-9`}
                   />
                   {loadingUsers && (
                     <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                      <svg className="h-4 w-4 animate-spin text-premium_pink" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="size-4 animate-spin text-[#ff0055]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
                       </svg>
@@ -846,15 +849,15 @@ export default function AccountsClient() {
                 </div>
               )}
               {filteredUsers.length > 0 && (
-                <div className="absolute z-10 mt-1 max-h-36 w-full overflow-y-auto rounded-lg border border-premium_pink/20 bg-panel_black shadow-lg">
+                <div className="absolute z-10 mt-1.5 max-h-40 w-full animate-slide-down overflow-y-auto rounded-xl border border-white/[0.08] bg-[#0c0c0f] shadow-2xl">
                   {filteredUsers.map((u) => (
                     <button
                       key={u.id}
                       type="button"
                       onClick={() => selectUser(u)}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-white hover:bg-premium_pink/10"
+                      className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[0.8rem] text-white/70 transition hover:bg-white/[0.04] hover:text-white"
                     >
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-premium_pink/15 text-xs font-semibold uppercase text-premium_pink">
+                      <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.08] text-[0.7rem] font-bold uppercase text-[#ff0055] ring-1 ring-[#ff0055]/15">
                         {u.email[0]}
                       </div>
                       {u.email}
@@ -863,15 +866,15 @@ export default function AccountsClient() {
                 </div>
               )}
               {userQuery.trim() && !selectedUser && filteredUsers.length === 0 && !loadingUsers && (
-                <p className="mt-1 text-xs text-white/40">No se encontró ningún usuario con ese correo.</p>
+                <p className="mt-1.5 text-[0.75rem] text-white/20">No se encontró ningún usuario con ese correo.</p>
               )}
               {selectedUser?.role === "reseller" && (
-                <p className="mt-1 text-xs text-amber-300/90">
+                <p className="mt-1.5 text-[0.75rem] text-amber-200/70">
                   Es revendedor: el acceso a estas cuentas vencerá en 30 días.
                 </p>
               )}
               {selectedUser?.role === "advisor" && (
-                <p className="mt-1 text-xs text-sky-300/90">
+                <p className="mt-1.5 text-[0.75rem] text-sky-200/70">
                   Es asesor: ya puede consultar cualquier correo, vincular
                   cuentas no es necesario.
                 </p>
@@ -879,30 +882,28 @@ export default function AccountsClient() {
             </div>
 
             <div>
-              <span className="mb-1 block text-xs font-medium text-premium_pink">
-                Correos de las cuentas
-              </span>
+              <span className={LABEL_CLASS}>Correos de las cuentas</span>
               <textarea
                 value={accountEmailsText}
                 onChange={(e) => setAccountEmailsText(e.target.value)}
                 placeholder={"Pega los correos de las cuentas separados por comas o saltos de línea\nej: cuenta1@correo.com, cuenta2@correo.com"}
                 rows={4}
-                className="w-full resize-none rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                className={`${INPUT_CLASS} resize-none`}
               />
               <button
                 type="button"
                 onClick={resolveAccountEmails}
                 disabled={resolvingAccounts || !accountEmailsText.trim()}
-                className="mt-2 w-full rounded-lg border border-premium_pink/30 bg-premium_pink/10 px-3 py-2 text-sm font-medium text-premium_pink transition hover:bg-premium_pink/20 disabled:opacity-50"
+                className={`mt-2.5 w-full ${BTN_NEUTRAL}`}
               >
                 {resolvingAccounts ? "Buscando cuentas…" : "Buscar cuentas"}
               </button>
               {notFoundEmails.length > 0 && (
-                <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 p-2">
-                  <span className="block text-xs font-medium text-red-400">
-                    No se encontraron ({notFoundEmails.length}):
+                <div className="mt-2.5 rounded-xl border border-red-500/20 bg-red-500/[0.06] px-3.5 py-2.5">
+                  <span className="block text-[0.7rem] font-bold uppercase tracking-[0.1em] text-red-300/70">
+                    No se encontraron ({notFoundEmails.length})
                   </span>
-                  <p className="mt-1 text-xs text-red-300/80 break-all">
+                  <p className="mt-1 break-all text-[0.75rem] text-red-200/70">
                     {notFoundEmails.join(", ")}
                   </p>
                 </div>
@@ -911,22 +912,23 @@ export default function AccountsClient() {
 
             {selectedAccounts.length > 0 && (
               <div>
-                <span className="mb-1 block text-xs font-medium text-premium_pink">
+                <span className={LABEL_CLASS}>
                   Cuentas seleccionadas ({selectedAccounts.length})
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {selectedAccounts.map((acc) => (
                     <span
                       key={acc.id}
-                      className="inline-flex items-center gap-1 rounded-full border border-premium_pink/30 bg-premium_pink/10 px-2.5 py-1 text-xs text-white"
+                      className="inline-flex items-center gap-1 rounded-lg bg-[#ff0055]/[0.08] px-2.5 py-1 text-[0.75rem] font-medium text-[#ff0055] ring-1 ring-inset ring-[#ff0055]/20"
                     >
                       {acc.email}
                       <button
                         type="button"
                         onClick={() => removeAccount(acc.id)}
-                        className="ml-0.5 rounded-full p-0.5 text-white/60 hover:text-white"
+                        className="ml-0.5 rounded p-0.5 text-[#ff0055]/60 transition hover:text-[#ff0055]"
+                        aria-label={`Quitar ${acc.email}`}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3 w-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden className="size-3">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                         </svg>
                       </button>
@@ -936,20 +938,16 @@ export default function AccountsClient() {
               </div>
             )}
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setLinkOpen(false)}
                 disabled={linking}
-                className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10 disabled:opacity-60"
+                className={BTN_GHOST}
               >
                 Cancelar
               </button>
-              <button
-                type="submit"
-                disabled={linking}
-                className="rounded-lg bg-premium_pink px-4 py-2 text-sm font-semibold text-panel_black transition hover:opacity-90 disabled:opacity-60"
-              >
+              <button type="submit" disabled={linking} className={BTN_ACCENT}>
                 {linking ? "Vinculando…" : "Vincular"}
               </button>
             </div>
@@ -967,61 +965,15 @@ function SkeletonRows() {
         <tr key={i}>
           <td className="px-4 py-4">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 animate-pulse rounded-full bg-premium_pink/10" />
-              <div className="h-3 w-40 animate-pulse rounded bg-premium_pink/10" />
+              <div className="size-8 animate-pulse rounded-lg bg-white/[0.04]" />
+              <div className="h-3 w-40 animate-pulse rounded bg-white/[0.04]" />
             </div>
           </td>
           <td className="px-4 py-4">
-            <div className="ml-auto h-3 w-20 animate-pulse rounded bg-premium_pink/10" />
+            <div className="ml-auto h-3 w-20 animate-pulse rounded bg-white/[0.04]" />
           </td>
         </tr>
       ))}
     </>
-  );
-}
-
-function Modal({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="relative w-full max-w-md rounded-2xl border border-premium_pink/30 bg-panel_black p-6 shadow-2xl">
-        <div className="mb-4 flex items-start justify-between">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-1 text-white/60 hover:bg-premium_pink/10 hover:text-white"
-            aria-label="Cerrar"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="h-5 w-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18 18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
   );
 }

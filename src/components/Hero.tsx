@@ -133,10 +133,10 @@ export default function Hero() {
         <Fade triggerOnce>
           <div className="text-center mb-8 sm:mb-16">
             <Image
-              src="/images/accounts_logo.png"
+              src="/images/premiummm-logo.png"
               alt="Premiummm Logo"
-              width={210}
-              height={150}
+              width={130}
+              height={130}
               className="mx-auto"
             />
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-extrabold italic text-[#f1054d] drop-shadow-[0_0_15px_#f1054d]">

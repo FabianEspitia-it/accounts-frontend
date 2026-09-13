@@ -2,6 +2,17 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
+import {
+  BADGE,
+  BTN_ACCENT,
+  BTN_GHOST,
+  BTN_NEUTRAL,
+  CARD,
+  INPUT_CLASS,
+  LABEL_CLASS,
+  PAGER,
+  TH,
+} from "../_components/ui";
 
 type RequestLog = {
   id: string;
@@ -88,30 +99,30 @@ function toIsoFromDateInput(value: string, endOfDay = false): string | null {
 function serviceBadgeClasses(service: string): string {
   const normalized = service.toLowerCase();
   if (normalized.includes("netflix")) {
-    return "bg-red-500/15 text-red-300 ring-red-400/30";
+    return "bg-red-500/[0.08] text-red-300/80 ring-red-500/15";
   }
   if (normalized.includes("disney")) {
-    return "bg-blue-500/15 text-blue-300 ring-blue-400/30";
+    return "bg-blue-500/[0.08] text-blue-300/80 ring-blue-500/15";
   }
   if (normalized.includes("prime")) {
-    return "bg-sky-500/15 text-sky-300 ring-sky-400/30";
+    return "bg-sky-500/[0.08] text-sky-300/80 ring-sky-500/15";
   }
   if (normalized.includes("hbo") || normalized.includes("max")) {
-    return "bg-purple-500/15 text-purple-300 ring-purple-400/30";
+    return "bg-purple-500/[0.08] text-purple-300/80 ring-purple-500/15";
   }
   if (normalized.includes("youtube")) {
-    return "bg-rose-500/15 text-rose-300 ring-rose-400/30";
+    return "bg-rose-500/[0.08] text-rose-300/80 ring-rose-500/15";
   }
   if (normalized.includes("spotify")) {
-    return "bg-green-500/15 text-green-300 ring-green-400/30";
+    return "bg-green-500/[0.08] text-green-300/80 ring-green-500/15";
   }
   if (normalized.includes("crunchyroll")) {
-    return "bg-orange-500/15 text-orange-300 ring-orange-400/30";
+    return "bg-orange-500/[0.08] text-orange-300/80 ring-orange-500/15";
   }
   if (normalized.includes("universal")) {
-    return "bg-yellow-500/15 text-yellow-200 ring-yellow-400/30";
+    return "bg-yellow-500/[0.08] text-yellow-200/80 ring-yellow-500/15";
   }
-  return "bg-premium_pink/15 text-premium_pink ring-premium_pink/30";
+  return "bg-fuchsia-500/[0.08] text-fuchsia-300/80 ring-fuchsia-500/15";
 }
 
 export default function RequestsClient() {
@@ -263,13 +274,13 @@ export default function RequestsClient() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="animate-fade-in">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-white md:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-white">
             Solicitudes
-          </h2>
-          <p className="mt-1 text-sm text-white/70">
+          </h1>
+          <p className="mt-1.5 text-sm text-white/35">
             Historial de peticiones realizadas a los servicios de streaming.
           </p>
         </div>
@@ -277,15 +288,16 @@ export default function RequestsClient() {
           type="button"
           onClick={reload}
           disabled={loading}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-premium_pink/30 px-4 py-2.5 text-sm font-medium text-premium_pink transition hover:bg-premium_pink/10 disabled:opacity-60"
+          className={BTN_NEUTRAL}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            strokeWidth={2}
+            strokeWidth={1.5}
             stroke="currentColor"
-            className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            aria-hidden
+            className={`size-4 ${loading ? "animate-spin" : ""}`}
           >
             <path
               strokeLinecap="round"
@@ -297,15 +309,10 @@ export default function RequestsClient() {
         </button>
       </div>
 
-      <form
-        onSubmit={applyFilters}
-        className="rounded-2xl border border-premium_pink/20 bg-panel_black p-4 md:p-5"
-      >
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <form onSubmit={applyFilters} className={`${CARD} p-5`}>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-premium_pink">
-              Correo cliente
-            </span>
+            <span className={LABEL_CLASS}>Correo cliente</span>
             <input
               type="text"
               value={filters.email}
@@ -313,13 +320,11 @@ export default function RequestsClient() {
                 setFilters((f) => ({ ...f, email: e.target.value }))
               }
               placeholder="cliente@correo.com"
-              className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+              className={INPUT_CLASS}
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-premium_pink">
-              Solicitado por
-            </span>
+            <span className={LABEL_CLASS}>Solicitado por</span>
             <input
               type="text"
               value={filters.requested_by}
@@ -327,19 +332,17 @@ export default function RequestsClient() {
                 setFilters((f) => ({ ...f, requested_by: e.target.value }))
               }
               placeholder="admin@premiummm.com"
-              className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+              className={INPUT_CLASS}
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-premium_pink">
-              Servicio
-            </span>
+            <span className={LABEL_CLASS}>Servicio</span>
             <select
               value={filters.service_name}
               onChange={(e) =>
                 setFilters((f) => ({ ...f, service_name: e.target.value }))
               }
-              className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+              className={`${INPUT_CLASS} cursor-pointer`}
             >
               <option value="">Todos</option>
               {services.map((s) => (
@@ -350,54 +353,43 @@ export default function RequestsClient() {
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-premium_pink">
-              Desde
-            </span>
+            <span className={LABEL_CLASS}>Desde</span>
             <input
               type="date"
               value={filters.start_date}
               onChange={(e) =>
                 setFilters((f) => ({ ...f, start_date: e.target.value }))
               }
-              className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink [color-scheme:dark]"
+              className={`${INPUT_CLASS} [color-scheme:dark]`}
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-premium_pink">
-              Hasta
-            </span>
+            <span className={LABEL_CLASS}>Hasta</span>
             <input
               type="date"
               value={filters.end_date}
               onChange={(e) =>
                 setFilters((f) => ({ ...f, end_date: e.target.value }))
               }
-              className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink [color-scheme:dark]"
+              className={`${INPUT_CLASS} [color-scheme:dark]`}
             />
           </label>
         </div>
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
           {hasFilters && (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10"
-            >
+            <button type="button" onClick={clearFilters} className={BTN_GHOST}>
               Limpiar filtros
             </button>
           )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-premium_pink px-4 py-2 text-sm font-semibold text-panel_black transition hover:opacity-90 disabled:opacity-60"
-          >
+          <button type="submit" disabled={loading} className={BTN_ACCENT}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth={2}
+              strokeWidth={1.5}
               stroke="currentColor"
-              className="h-4 w-4"
+              aria-hidden
+              className="size-4"
             >
               <path
                 strokeLinecap="round"
@@ -410,15 +402,15 @@ export default function RequestsClient() {
         </div>
       </form>
 
-      <div className="overflow-hidden rounded-2xl border border-premium_pink/20 bg-panel_black">
-        <div className="flex flex-col gap-3 border-b border-premium_pink/20 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-white/80">
-            <span className="font-semibold text-white">
+      <div className={`mt-5 overflow-hidden ${CARD}`}>
+        <div className="flex flex-col gap-3 border-b border-white/[0.06] px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-[0.75rem] text-white/25">
+            <span className="font-medium text-white/60">
               {total.toLocaleString("es-CO")}
             </span>{" "}
-            <span className="text-white/60">solicitudes en total</span>
+            solicitudes en total
           </div>
-          <span className="text-xs text-white/60">
+          <span className="text-[0.75rem] text-white/20">
             {total === 0
               ? "Sin resultados"
               : `Mostrando ${rangeStart}–${rangeEnd}`}
@@ -427,27 +419,27 @@ export default function RequestsClient() {
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[920px] text-left text-sm">
-            <thead className="bg-premium_pink/5 text-xs uppercase tracking-wide text-premium_pink/80">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Solicitado por</th>
-                <th className="px-4 py-3 font-semibold">Correo cliente</th>
-                <th className="px-4 py-3 font-semibold">Teléfono</th>
-                <th className="px-4 py-3 font-semibold">Servicio</th>
-                <th className="px-4 py-3 font-semibold">Acción</th>
-                <th className="px-4 py-3 font-semibold">Fecha</th>
+            <thead className="border-b border-white/[0.06]">
+              <tr className="bg-white/[0.03]">
+                <th className={TH}>Solicitado por</th>
+                <th className={TH}>Correo cliente</th>
+                <th className={TH}>Teléfono</th>
+                <th className={TH}>Servicio</th>
+                <th className={TH}>Acción</th>
+                <th className={TH}>Fecha</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-premium_pink/10">
+            <tbody className="divide-y divide-white/[0.04]">
               {loading && items.length === 0 && <SkeletonRows />}
 
               {!loading && errorMsg && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center">
-                    <p className="text-sm text-red-300">{errorMsg}</p>
+                  <td colSpan={6} className="px-4 py-12 text-center">
+                    <p className="text-sm text-red-300/80">{errorMsg}</p>
                     <button
                       type="button"
                       onClick={reload}
-                      className="mt-3 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs text-premium_pink hover:bg-premium_pink/10"
+                      className={`mt-4 ${BTN_NEUTRAL}`}
                     >
                       Reintentar
                     </button>
@@ -459,7 +451,7 @@ export default function RequestsClient() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-10 text-center text-sm text-white/60"
+                    className="px-4 py-12 text-center text-sm text-white/20"
                   >
                     {hasFilters
                       ? "Ninguna solicitud coincide con los filtros."
@@ -472,35 +464,33 @@ export default function RequestsClient() {
                 items.map((log) => (
                   <tr
                     key={log.id}
-                    className="transition hover:bg-premium_pink/5"
+                    className="transition-colors hover:bg-white/[0.02]"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-premium_pink/15 text-sm font-semibold uppercase text-premium_pink">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.08] text-[0.75rem] font-bold uppercase text-[#ff0055] ring-1 ring-[#ff0055]/15">
                           {log.requested_by?.[0] ?? "?"}
                         </div>
-                        <span className="font-medium text-white">
-                          {log.requested_by}
-                        </span>
+                        <span className="text-white/75">{log.requested_by}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-white/85">{log.email}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-white/85">
+                    <td className="px-4 py-3 text-white/50">{log.email}</td>
+                    <td className="whitespace-nowrap px-4 py-3 font-mono text-[0.8rem] text-white/50">
                       {log.phone_number || "—"}
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${serviceBadgeClasses(
+                        className={`${BADGE} ${serviceBadgeClasses(
                           log.service_name
                         )}`}
                       >
                         {log.service_name}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-white/85">
+                    <td className="px-4 py-3 text-white/50">
                       {log.service_action_name}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-white/70">
+                    <td className="whitespace-nowrap px-4 py-3 font-mono text-[0.75rem] text-white/35">
                       {formatDateTime(log.created_at)}
                     </td>
                   </tr>
@@ -509,24 +499,25 @@ export default function RequestsClient() {
           </table>
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-premium_pink/20 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-xs text-white/60">
+        <div className="flex flex-col gap-3 border-t border-white/[0.06] px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-[0.75rem] text-white/20">
             Página {currentPage} de {totalPages}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={goPrev}
               disabled={!canPrev}
-              className="inline-flex items-center gap-1 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs font-medium text-white/80 hover:bg-premium_pink/10 disabled:cursor-not-allowed disabled:opacity-40"
+              className={PAGER}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 stroke="currentColor"
-                className="h-4 w-4"
+                aria-hidden
+                className="size-3.5"
               >
                 <path
                   strokeLinecap="round"
@@ -540,16 +531,17 @@ export default function RequestsClient() {
               type="button"
               onClick={goNext}
               disabled={!canNext}
-              className="inline-flex items-center gap-1 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs font-medium text-white/80 hover:bg-premium_pink/10 disabled:cursor-not-allowed disabled:opacity-40"
+              className={PAGER}
             >
               Siguiente
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 stroke="currentColor"
-                className="h-4 w-4"
+                aria-hidden
+                className="size-3.5"
               >
                 <path
                   strokeLinecap="round"
@@ -572,24 +564,24 @@ function SkeletonRows() {
         <tr key={i}>
           <td className="px-4 py-4">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 animate-pulse rounded-full bg-premium_pink/10" />
-              <div className="h-3 w-40 animate-pulse rounded bg-premium_pink/10" />
+              <div className="size-8 animate-pulse rounded-lg bg-white/[0.04]" />
+              <div className="h-3 w-40 animate-pulse rounded bg-white/[0.04]" />
             </div>
           </td>
           <td className="px-4 py-4">
-            <div className="h-3 w-44 animate-pulse rounded bg-premium_pink/10" />
+            <div className="h-3 w-44 animate-pulse rounded bg-white/[0.04]" />
           </td>
           <td className="px-4 py-4">
-            <div className="h-3 w-32 animate-pulse rounded bg-premium_pink/10" />
+            <div className="h-3 w-32 animate-pulse rounded bg-white/[0.04]" />
           </td>
           <td className="px-4 py-4">
-            <div className="h-5 w-20 animate-pulse rounded-full bg-premium_pink/10" />
+            <div className="h-5 w-20 animate-pulse rounded-lg bg-white/[0.04]" />
           </td>
           <td className="px-4 py-4">
-            <div className="h-3 w-48 animate-pulse rounded bg-premium_pink/10" />
+            <div className="h-3 w-48 animate-pulse rounded bg-white/[0.04]" />
           </td>
           <td className="px-4 py-4">
-            <div className="h-3 w-32 animate-pulse rounded bg-premium_pink/10" />
+            <div className="h-3 w-32 animate-pulse rounded bg-white/[0.04]" />
           </td>
         </tr>
       ))}

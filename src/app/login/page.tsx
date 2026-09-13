@@ -62,10 +62,10 @@ export default function LoginPage() {
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-10">
         <div className="w-full max-w-md rounded-2xl border-2 border-premium_pink bg-black/95 p-8 shadow-lg">
           <Image
-            src="/images/accounts_logo.png"
+            src="/images/premiummm-logo.png"
             alt="Accounts Premiummm"
-            width={180}
-            height={130}
+            width={110}
+            height={110}
             className="mx-auto mb-4"
           />
           <h1 className="mb-6 text-center text-2xl font-black italic text-premium_pink drop-shadow-[0_0_10px_#f1054d]">

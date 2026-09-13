@@ -11,6 +11,22 @@ import {
   formatExpiry,
   roleLabel,
 } from "@/lib/roles";
+import Modal from "../_components/Modal";
+import {
+  BTN_ACCENT,
+  BTN_DANGER,
+  BTN_GHOST,
+  BTN_NEUTRAL,
+  CARD,
+  INPUT_CLASS,
+  LABEL_CLASS,
+  PAGER,
+  TH,
+} from "../_components/ui";
+
+/** Acción compacta dentro de una fila de la tabla. */
+const ROW_ACTION =
+  "inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-2.5 py-1.5 text-[0.7rem] font-medium text-white/50 ring-1 ring-white/[0.07] transition hover:bg-white/[0.08] hover:text-white";
 
 type Account = {
   id: string;
@@ -459,28 +475,25 @@ export default function UsersClient() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="animate-fade-in">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-white md:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-white">
             Usuarios
-          </h2>
-          <p className="mt-1 text-sm text-white/70">
+          </h1>
+          <p className="mt-1.5 text-sm text-white/35">
             Administra los usuarios con acceso al panel.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-premium_pink px-4 py-2.5 text-sm font-semibold text-panel_black transition hover:opacity-90"
-        >
+        <button type="button" onClick={openCreate} className={BTN_ACCENT}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            strokeWidth={2}
+            strokeWidth={1.5}
             stroke="currentColor"
-            className="h-4 w-4"
+            aria-hidden
+            className="size-4"
           >
             <path
               strokeLinecap="round"
@@ -492,18 +505,19 @@ export default function UsersClient() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-premium_pink/20 bg-panel_black">
-        <div className="flex flex-col gap-3 border-b border-premium_pink/20 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex w-full flex-col gap-2 sm:flex-row sm:max-w-2xl">
+      <div className={`overflow-hidden ${CARD}`}>
+        <div className="flex flex-col gap-3 border-b border-white/[0.06] px-4 py-3.5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex w-full flex-col gap-2 sm:flex-row lg:max-w-2xl">
             <div className="relative w-full sm:max-w-xs">
-              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-premium_pink/70">
+              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-white/25">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={1.8}
+                  strokeWidth={1.5}
                   stroke="currentColor"
-                  className="h-4 w-4"
+                  aria-hidden
+                  className="size-4"
                 >
                   <path
                     strokeLinecap="round"
@@ -516,19 +530,20 @@ export default function UsersClient() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar por correo de usuario"
-                className="w-full rounded-lg border border-premium_pink/30 bg-panel_black py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                placeholder="Buscar por correo de usuario…"
+                className={`${INPUT_CLASS} pl-9`}
               />
             </div>
             <div className="relative w-full sm:max-w-xs">
-              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-premium_pink/70">
+              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-white/25">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={1.8}
+                  strokeWidth={1.5}
                   stroke="currentColor"
-                  className="h-4 w-4"
+                  aria-hidden
+                  className="size-4"
                 >
                   <path
                     strokeLinecap="round"
@@ -541,8 +556,8 @@ export default function UsersClient() {
                 type="search"
                 value={accountEmailQuery}
                 onChange={(e) => setAccountEmailQuery(e.target.value)}
-                placeholder="Buscar por cuenta vinculada"
-                className="w-full rounded-lg border border-premium_pink/30 bg-panel_black py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                placeholder="Buscar por cuenta vinculada…"
+                className={`${INPUT_CLASS} pl-9`}
               />
             </div>
             <select
@@ -552,7 +567,7 @@ export default function UsersClient() {
                 setSkip(0);
               }}
               aria-label="Filtrar por rol"
-              className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink sm:w-44"
+              className={`${INPUT_CLASS} cursor-pointer sm:w-44`}
             >
               <option value="">Todos los roles</option>
               {ASSIGNABLE_ROLES.map((role) => (
@@ -562,24 +577,27 @@ export default function UsersClient() {
               ))}
             </select>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-white/60">
-              {total === 0 ? "Sin resultados" : `Mostrando ${rangeStart}–${rangeEnd} de ${total.toLocaleString("es-CO")}`}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-[0.75rem] text-white/20">
+              {total === 0
+                ? "Sin resultados"
+                : `${rangeStart}–${rangeEnd} de ${total.toLocaleString("es-CO")}`}
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={goPrev}
                 disabled={!canPrev}
-                className="inline-flex items-center gap-1 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs font-medium text-white/80 hover:bg-premium_pink/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className={PAGER}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   stroke="currentColor"
-                  className="h-4 w-4"
+                  aria-hidden
+                  className="size-3.5"
                 >
                   <path
                     strokeLinecap="round"
@@ -589,23 +607,24 @@ export default function UsersClient() {
                 </svg>
                 Anterior
               </button>
-              <span className="text-xs text-white/50">
+              <span className="px-1 text-[0.75rem] font-medium text-white/25">
                 {currentPage} / {totalPages}
               </span>
               <button
                 type="button"
                 onClick={goNext}
                 disabled={!canNext}
-                className="inline-flex items-center gap-1 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs font-medium text-white/80 hover:bg-premium_pink/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className={PAGER}
               >
                 Siguiente
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   stroke="currentColor"
-                  className="h-4 w-4"
+                  aria-hidden
+                  className="size-3.5"
                 >
                   <path
                     strokeLinecap="round"
@@ -620,27 +639,23 @@ export default function UsersClient() {
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[680px] text-left text-sm">
-            <thead className="bg-premium_pink/5 text-xs uppercase tracking-wide text-premium_pink/80">
-              <tr>
-                <th className="px-4 py-3 font-semibold">
-                  Usuario / Rol / Cuentas vinculadas
-                </th>
-                <th className="w-80 px-4 py-3 text-right font-semibold">
-                  Acciones
-                </th>
+            <thead className="border-b border-white/[0.06]">
+              <tr className="bg-white/[0.03]">
+                <th className={TH}>Usuario / Rol / Cuentas vinculadas</th>
+                <th className={`w-80 ${TH} text-right`}>Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-premium_pink/10">
+            <tbody className="divide-y divide-white/[0.04]">
               {loading && users.length === 0 && <SkeletonRows />}
 
               {!loading && errorMsg && (
                 <tr>
-                  <td colSpan={2} className="px-4 py-10 text-center">
-                    <p className="text-sm text-red-300">{errorMsg}</p>
+                  <td colSpan={2} className="px-4 py-12 text-center">
+                    <p className="text-sm text-red-300/80">{errorMsg}</p>
                     <button
                       type="button"
                       onClick={reload}
-                      className="mt-3 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs text-premium_pink hover:bg-premium_pink/10"
+                      className={`mt-4 ${BTN_NEUTRAL}`}
                     >
                       Reintentar
                     </button>
@@ -652,7 +667,7 @@ export default function UsersClient() {
                 <tr>
                   <td
                     colSpan={2}
-                    className="px-4 py-10 text-center text-sm text-white/60"
+                    className="px-4 py-12 text-center text-sm text-white/20"
                   >
                     {!debouncedQuery && !debouncedAccountEmail && !roleFilter
                       ? "Todavía no hay usuarios. Crea el primero."
@@ -665,37 +680,36 @@ export default function UsersClient() {
                 users.map((user) => (
                   <tr
                     key={user.id}
-                    className="transition hover:bg-premium_pink/5"
+                    className="transition-colors hover:bg-white/[0.02]"
                   >
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-premium_pink/15 text-sm font-semibold uppercase text-premium_pink">
+                      <div className="flex items-start gap-3">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.08] text-[0.75rem] font-bold uppercase text-[#ff0055] ring-1 ring-[#ff0055]/15">
                           {user.email?.[0] ?? "?"}
                         </div>
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-medium text-white">
-                              {user.email}
-                            </span>
+                            <span className="text-white/75">{user.email}</span>
                             <RoleBadge role={user.role} />
                           </div>
                           {user.role === "advisor" && (
-                            <p className="mt-1 text-xs text-white/50">
+                            <p className="mt-1 text-[0.75rem] text-white/25">
                               Consulta códigos de cualquier correo.
                             </p>
                           )}
                           {user.accounts && user.accounts.length > 0 && (
-                            <ul className="mt-1 space-y-0.5">
+                            <ul className="mt-1.5 space-y-1">
                               {user.accounts.map((acc) => (
                                 <li
                                   key={acc.id}
-                                  className="flex flex-wrap items-center gap-1.5 text-xs text-premium_pink/80"
+                                  className="flex flex-wrap items-center gap-1.5 font-mono text-[0.75rem] text-white/35"
                                 >
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 16 16"
                                     fill="currentColor"
-                                    className="h-3 w-3 shrink-0 opacity-60"
+                                    aria-hidden
+                                    className="size-3 shrink-0 text-white/20"
                                   >
                                     <path
                                       fillRule="evenodd"
@@ -712,20 +726,21 @@ export default function UsersClient() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap items-center justify-end gap-2">
+                    <td className="px-4 py-3 align-top">
+                      <div className="flex flex-wrap items-center justify-end gap-1.5">
                         <button
                           type="button"
                           onClick={() => openRole(user)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs font-medium text-premium_pink transition hover:bg-premium_pink/10"
+                          className={ROW_ACTION}
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
-                            strokeWidth={1.8}
+                            strokeWidth={1.5}
                             stroke="currentColor"
-                            className="h-4 w-4"
+                            aria-hidden
+                            className="size-3.5"
                           >
                             <path
                               strokeLinecap="round"
@@ -741,15 +756,16 @@ export default function UsersClient() {
                             <button
                               type="button"
                               onClick={() => openRenew(user)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/30 px-3 py-1.5 text-xs font-medium text-emerald-300 transition hover:bg-emerald-500/10"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/[0.08] px-2.5 py-1.5 text-[0.7rem] font-medium text-emerald-300/80 ring-1 ring-emerald-500/20 transition hover:bg-emerald-500/[0.14] hover:text-emerald-300"
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
-                                strokeWidth={1.8}
+                                strokeWidth={1.5}
                                 stroke="currentColor"
-                                className="h-4 w-4"
+                                aria-hidden
+                                className="size-3.5"
                               >
                                 <path
                                   strokeLinecap="round"
@@ -764,15 +780,16 @@ export default function UsersClient() {
                           <button
                             type="button"
                             onClick={() => openUnlink(user)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs font-medium text-premium_pink transition hover:bg-premium_pink/10"
+                            className={ROW_ACTION}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
                               viewBox="0 0 24 24"
-                              strokeWidth={1.8}
+                              strokeWidth={1.5}
                               stroke="currentColor"
-                              className="h-4 w-4"
+                              aria-hidden
+                              className="size-3.5"
                             >
                               <path
                                 strokeLinecap="round"
@@ -786,15 +803,16 @@ export default function UsersClient() {
                         <button
                           type="button"
                           onClick={() => openPassword(user)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-premium_pink/30 px-3 py-1.5 text-xs font-medium text-premium_pink transition hover:bg-premium_pink/10"
+                          className={ROW_ACTION}
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
-                            strokeWidth={1.8}
+                            strokeWidth={1.5}
                             stroke="currentColor"
-                            className="h-4 w-4"
+                            aria-hidden
+                            className="size-3.5"
                           >
                             <path
                               strokeLinecap="round"
@@ -807,15 +825,16 @@ export default function UsersClient() {
                         <button
                           type="button"
                           onClick={() => setConfirmDelete(user)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-red-400/30 px-3 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/10"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-2.5 py-1.5 text-[0.7rem] font-medium text-white/50 ring-1 ring-white/[0.07] transition hover:bg-red-500/[0.1] hover:text-red-400 hover:ring-red-500/25"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
-                            strokeWidth={1.8}
+                            strokeWidth={1.5}
                             stroke="currentColor"
-                            className="h-4 w-4"
+                            aria-hidden
+                            className="size-3.5"
                           >
                             <path
                               strokeLinecap="round"
@@ -842,9 +861,7 @@ export default function UsersClient() {
         >
           <form onSubmit={handleCreate} className="space-y-4">
             <label className="block">
-              <span className="mb-1 block text-xs font-medium text-premium_pink">
-                Correo
-              </span>
+              <span className={LABEL_CLASS}>Correo</span>
               <input
                 type="email"
                 required
@@ -852,13 +869,11 @@ export default function UsersClient() {
                 value={createEmail}
                 onChange={(e) => setCreateEmail(e.target.value)}
                 placeholder="usuario@correo.com"
-                className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                className={INPUT_CLASS}
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs font-medium text-premium_pink">
-                Contraseña
-              </span>
+              <span className={LABEL_CLASS}>Contraseña</span>
               <input
                 type="password"
                 required
@@ -866,31 +881,25 @@ export default function UsersClient() {
                 value={createPassword}
                 onChange={(e) => setCreatePassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                className={INPUT_CLASS}
               />
             </label>
 
             <div>
-              <span className="mb-1 block text-xs font-medium text-premium_pink">
-                Rol
-              </span>
+              <span className={LABEL_CLASS}>Rol</span>
               <RoleOptions value={createRole} onChange={setCreateRole} />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setCreateOpen(false)}
                 disabled={creating}
-                className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10 disabled:opacity-60"
+                className={BTN_GHOST}
               >
                 Cancelar
               </button>
-              <button
-                type="submit"
-                disabled={creating}
-                className="rounded-lg bg-premium_pink px-4 py-2 text-sm font-semibold text-panel_black transition hover:opacity-90 disabled:opacity-60"
-              >
+              <button type="submit" disabled={creating} className={BTN_ACCENT}>
                 {creating ? "Creando…" : "Crear usuario"}
               </button>
             </div>
@@ -905,16 +914,16 @@ export default function UsersClient() {
           title="Cambiar rol"
         >
           <form onSubmit={handleUpdateRole} className="space-y-4">
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-white/40">
               Usuario:{" "}
-              <span className="font-semibold text-white">
+              <span className="font-medium text-white/80">
                 {roleTarget.email}
               </span>
               {roleTarget.role && (
                 <>
                   {" "}
                   · rol actual:{" "}
-                  <span className="font-semibold text-white">
+                  <span className="font-medium text-white/80">
                     {roleLabel(roleTarget.role)}
                   </span>
                 </>
@@ -924,35 +933,35 @@ export default function UsersClient() {
             <RoleOptions value={nextRole} onChange={setNextRole} />
 
             {nextRole === "reseller" && roleTarget.role === "advisor" && (
-              <p className="text-xs text-amber-300/90">
+              <p className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] px-3.5 py-2.5 text-[0.75rem] text-amber-200/80">
                 Al pasar a revendedor solo podrá consultar las cuentas que tenga
                 asignadas, y esas asignaciones vencerán en 30 días.
               </p>
             )}
             {nextRole === "advisor" && roleTarget.role === "reseller" && (
-              <p className="text-xs text-amber-300/90">
+              <p className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] px-3.5 py-2.5 text-[0.75rem] text-amber-200/80">
                 Como asesor podrá consultar códigos de cualquier correo, sin
                 vencimiento.
               </p>
             )}
 
-            <p className="text-xs text-white/50">
+            <p className="text-[0.75rem] text-white/25">
               Al cambiar el rol se cerrarán las sesiones activas del usuario.
             </p>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setRoleTarget(null)}
                 disabled={savingRole}
-                className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10 disabled:opacity-60"
+                className={BTN_GHOST}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={savingRole || nextRole === roleTarget.role}
-                className="rounded-lg bg-premium_pink px-4 py-2 text-sm font-semibold text-panel_black transition hover:opacity-90 disabled:opacity-60"
+                className={BTN_ACCENT}
               >
                 {savingRole ? "Guardando…" : "Guardar rol"}
               </button>
@@ -968,34 +977,32 @@ export default function UsersClient() {
           title="Renovar acceso 30 días"
         >
           <form onSubmit={handleRenew} className="space-y-4">
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-white/40">
               Revendedor:{" "}
-              <span className="font-semibold text-white">
+              <span className="font-medium text-white/80">
                 {renewTarget.email}
               </span>
             </p>
 
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-medium text-premium_pink">
-                  Cuentas a renovar
-                </span>
-                <span className="text-xs text-white/50">
+                <span className={`${LABEL_CLASS} mb-0`}>Cuentas a renovar</span>
+                <span className="text-[0.75rem] text-white/25">
                   {selectedRenewIds.length} de {renewTarget.accounts?.length ?? 0}
                 </span>
               </div>
 
-              <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-premium_pink/20 p-2">
+              <div className="max-h-48 space-y-0.5 overflow-y-auto rounded-xl border border-white/[0.06] bg-white/[0.02] p-2">
                 {(renewTarget.accounts ?? []).map((acc) => (
                   <label
                     key={acc.id}
-                    className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-white transition hover:bg-premium_pink/10"
+                    className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-[0.8rem] text-white/70 transition hover:bg-white/[0.04] hover:text-white"
                   >
                     <input
                       type="checkbox"
                       checked={selectedRenewIds.includes(acc.id)}
                       onChange={() => toggleRenew(acc.id)}
-                      className="h-4 w-4 rounded border-premium_pink/30 bg-panel_black accent-premium_pink"
+                      className="size-4 rounded border-white/20 bg-white/[0.03] accent-[#ff0055]"
                     />
                     <span className="min-w-0 flex-1 truncate">{acc.email}</span>
                     <ExpiryTag account={acc} />
@@ -1004,23 +1011,23 @@ export default function UsersClient() {
               </div>
             </div>
 
-            <p className="text-xs text-white/50">
+            <p className="text-[0.75rem] text-white/25">
               La vigencia se reinicia: vencerán 30 días después de hoy.
             </p>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setRenewTarget(null)}
                 disabled={renewing}
-                className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10 disabled:opacity-60"
+                className={BTN_GHOST}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={renewing || selectedRenewIds.length === 0}
-                className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/[0.1] px-4 py-2 text-[0.75rem] font-medium tracking-wide text-emerald-300 ring-1 ring-emerald-500/30 transition hover:bg-emerald-500/20 hover:ring-emerald-500/50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {renewing ? "Renovando…" : "Renovar 30 días"}
               </button>
@@ -1035,19 +1042,19 @@ export default function UsersClient() {
           onClose={() => (!deletingId ? setConfirmDelete(null) : undefined)}
           title="Eliminar usuario"
         >
-          <p className="text-sm text-white/80">
+          <p className="text-sm text-white/50">
             ¿Seguro que deseas eliminar el usuario{" "}
-            <span className="font-semibold text-white">
+            <span className="font-medium text-white/80">
               {confirmDelete.email}
             </span>
             ? Esta acción no se puede deshacer.
           </p>
-          <div className="mt-6 flex justify-end gap-2">
+          <div className="mt-6 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={() => setConfirmDelete(null)}
               disabled={deletingId !== null}
-              className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10 disabled:opacity-60"
+              className={BTN_GHOST}
             >
               Cancelar
             </button>
@@ -1055,7 +1062,7 @@ export default function UsersClient() {
               type="button"
               onClick={() => void handleDelete(confirmDelete)}
               disabled={deletingId !== null}
-              className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-60"
+              className={BTN_DANGER}
             >
               {deletingId !== null ? "Eliminando…" : "Sí, eliminar"}
             </button>
@@ -1070,17 +1077,15 @@ export default function UsersClient() {
           title="Asignar nueva contraseña"
         >
           <form onSubmit={handleUpdatePassword} className="space-y-4">
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-white/40">
               Usuario:{" "}
-              <span className="font-semibold text-white">
+              <span className="font-medium text-white/80">
                 {passwordTarget.email}
               </span>
             </p>
 
             <label className="block">
-              <span className="mb-1 block text-xs font-medium text-premium_pink">
-                Nueva contraseña
-              </span>
+              <span className={LABEL_CLASS}>Nueva contraseña</span>
               <input
                 type={showPassword ? "text" : "password"}
                 required
@@ -1089,14 +1094,12 @@ export default function UsersClient() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                className={INPUT_CLASS}
               />
             </label>
 
             <label className="block">
-              <span className="mb-1 block text-xs font-medium text-premium_pink">
-                Confirmar contraseña
-              </span>
+              <span className={LABEL_CLASS}>Confirmar contraseña</span>
               <input
                 type={showPassword ? "text" : "password"}
                 required
@@ -1104,38 +1107,38 @@ export default function UsersClient() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                className={INPUT_CLASS}
               />
             </label>
 
-            <label className="flex cursor-pointer items-center gap-2 text-xs text-white/70">
+            <label className="flex cursor-pointer items-center gap-2.5 text-[0.75rem] text-white/40 transition hover:text-white/70">
               <input
                 type="checkbox"
                 checked={showPassword}
                 onChange={(e) => setShowPassword(e.target.checked)}
-                className="h-4 w-4 rounded border-premium_pink/30 bg-panel_black accent-premium_pink"
+                className="size-4 rounded border-white/20 bg-white/[0.03] accent-[#ff0055]"
               />
               Mostrar contraseñas
             </label>
 
-            <p className="text-xs text-white/50">
+            <p className="text-[0.75rem] text-white/25">
               Al cambiar la contraseña se cerrarán las sesiones activas del
               usuario.
             </p>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setPasswordTarget(null)}
                 disabled={savingPassword}
-                className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10 disabled:opacity-60"
+                className={BTN_GHOST}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={savingPassword}
-                className="rounded-lg bg-premium_pink px-4 py-2 text-sm font-semibold text-panel_black transition hover:opacity-90 disabled:opacity-60"
+                className={BTN_ACCENT}
               >
                 {savingPassword ? "Guardando…" : "Guardar contraseña"}
               </button>
@@ -1151,32 +1154,30 @@ export default function UsersClient() {
           title="Desvincular cuentas"
         >
           <form onSubmit={handleUnlink} className="space-y-4">
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-white/40">
               Usuario:{" "}
-              <span className="font-semibold text-white">
+              <span className="font-medium text-white/80">
                 {unlinkTarget.email}
               </span>
             </p>
 
             <div>
-              <span className="mb-2 block text-xs font-medium text-premium_pink">
-                Cuentas vinculadas
-              </span>
-              <div className="relative mb-2">
+              <span className={LABEL_CLASS}>Cuentas vinculadas</span>
+              <div className="relative mb-2.5">
                 <textarea
                   value={unlinkQuery}
                   onChange={(e) => setUnlinkQuery(e.target.value)}
-                  placeholder="Pegar cuentas (una por línea, separadas por coma o punto y coma)..."
+                  placeholder="Pegar cuentas (una por línea, separadas por coma o punto y coma)…"
                   rows={3}
-                  className="w-full resize-none rounded-lg border border-premium_pink/30 bg-panel_black px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-premium_pink focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                  className={`${INPUT_CLASS} resize-none`}
                 />
               </div>
 
-              <div className="mb-2 flex items-center justify-between">
+              <div className="mb-2 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={selectAllUnlink}
-                  className="rounded-md border border-premium_pink/30 px-3 py-1 text-xs font-medium text-premium_pink transition hover:bg-premium_pink/10"
+                  className="rounded-lg bg-white/[0.04] px-2.5 py-1.5 text-[0.7rem] font-medium text-white/50 ring-1 ring-white/[0.07] transition hover:bg-white/[0.08] hover:text-white"
                 >
                   {filteredUnlinkAccounts.length > 0 &&
                   filteredUnlinkAccounts.every((a) =>
@@ -1186,28 +1187,28 @@ export default function UsersClient() {
                     : "Seleccionar todas"}
                 </button>
                 {selectedUnlinkIds.length > 0 && (
-                  <span className="text-xs text-white/50">
+                  <span className="text-[0.75rem] text-white/25">
                     {selectedUnlinkIds.length} cuenta(s) seleccionada(s)
                   </span>
                 )}
               </div>
 
               {filteredUnlinkAccounts.length === 0 ? (
-                <p className="py-4 text-center text-sm text-white/40">
+                <p className="py-6 text-center text-sm text-white/20">
                   No hay cuentas vinculadas.
                 </p>
               ) : (
-                <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-premium_pink/20 p-2">
+                <div className="max-h-48 space-y-0.5 overflow-y-auto rounded-xl border border-white/[0.06] bg-white/[0.02] p-2">
                   {filteredUnlinkAccounts.map((acc) => (
                     <label
                       key={acc.id}
-                      className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-white transition hover:bg-premium_pink/10"
+                      className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-[0.8rem] text-white/70 transition hover:bg-white/[0.04] hover:text-white"
                     >
                       <input
                         type="checkbox"
                         checked={selectedUnlinkIds.includes(acc.id)}
                         onChange={() => toggleUnlink(acc.id)}
-                        className="h-4 w-4 rounded border-premium_pink/30 bg-panel_black accent-premium_pink"
+                        className="size-4 rounded border-white/20 bg-white/[0.03] accent-[#ff0055]"
                       />
                       {acc.email}
                     </label>
@@ -1217,19 +1218,19 @@ export default function UsersClient() {
 
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setUnlinkTarget(null)}
                 disabled={unlinking}
-                className="rounded-lg border border-premium_pink/30 px-4 py-2 text-sm font-medium text-white/80 hover:bg-premium_pink/10 disabled:opacity-60"
+                className={BTN_GHOST}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={unlinking || selectedUnlinkIds.length === 0}
-                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-60"
+                className={BTN_DANGER}
               >
                 {unlinking ? "Desvinculando…" : "Desvincular"}
               </button>
@@ -1245,11 +1246,11 @@ function RoleBadge({ role }: { role?: UserRole }) {
   if (!role) return null;
   const styles =
     role === "advisor"
-      ? "border-sky-400/30 bg-sky-500/10 text-sky-300"
-      : "border-premium_pink/30 bg-premium_pink/10 text-premium_pink";
+      ? "bg-sky-500/[0.08] text-sky-300/80 ring-sky-500/15"
+      : "bg-fuchsia-500/[0.08] text-fuchsia-300/80 ring-fuchsia-500/15";
   return (
     <span
-      className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${styles}`}
+      className={`inline-flex items-center rounded-lg px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${styles}`}
     >
       {roleLabel(role)}
     </span>
@@ -1261,7 +1262,7 @@ function ExpiryTag({ account }: { account: Account }) {
 
   if (account.is_expired) {
     return (
-      <span className="rounded-full border border-red-400/30 bg-red-500/10 px-1.5 py-0.5 text-[11px] font-medium text-red-300">
+      <span className="inline-flex items-center rounded-lg bg-red-500/[0.08] px-1.5 py-0.5 text-[0.7rem] font-medium text-red-300/80 ring-1 ring-inset ring-red-500/15">
         vencido
       </span>
     );
@@ -1271,10 +1272,10 @@ function ExpiryTag({ account }: { account: Account }) {
   const urgent = days !== null && days <= 5;
   return (
     <span
-      className={`rounded-full border px-1.5 py-0.5 text-[11px] ${
+      className={`inline-flex items-center rounded-lg px-1.5 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${
         urgent
-          ? "border-amber-400/30 bg-amber-500/10 text-amber-300"
-          : "border-white/15 bg-white/5 text-white/60"
+          ? "bg-amber-500/[0.08] text-amber-200/80 ring-amber-500/15"
+          : "bg-white/[0.04] text-white/40 ring-white/[0.07]"
       }`}
       title={`Vence el ${formatExpiry(account.expires_at)}`}
     >
@@ -1297,10 +1298,10 @@ function RoleOptions({
       {ASSIGNABLE_ROLES.map((role) => (
         <label
           key={role}
-          className={`flex cursor-pointer gap-3 rounded-lg border p-3 transition ${
+          className={`flex cursor-pointer gap-3 rounded-xl border p-3.5 transition ${
             value === role
-              ? "border-premium_pink bg-premium_pink/10"
-              : "border-premium_pink/20 hover:bg-premium_pink/5"
+              ? "border-[#ff0055]/30 bg-[#ff0055]/[0.06]"
+              : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
           }`}
         >
           <input
@@ -1309,13 +1310,13 @@ function RoleOptions({
             value={role}
             checked={value === role}
             onChange={() => onChange(role)}
-            className="mt-0.5 h-4 w-4 border-premium_pink/30 bg-panel_black accent-premium_pink"
+            className="mt-0.5 size-4 border-white/20 bg-white/[0.03] accent-[#ff0055]"
           />
           <span className="min-w-0">
-            <span className="block text-sm font-medium text-white">
+            <span className="block text-[0.8rem] font-medium text-white/80">
               {roleLabel(role)}
             </span>
-            <span className="block text-xs text-white/60">
+            <span className="mt-0.5 block text-[0.75rem] text-white/30">
               {ROLE_DESCRIPTIONS[role]}
             </span>
           </span>
@@ -1332,64 +1333,18 @@ function SkeletonRows() {
         <tr key={i}>
           <td className="px-4 py-4">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 animate-pulse rounded-full bg-premium_pink/10" />
+              <div className="size-8 animate-pulse rounded-lg bg-white/[0.04]" />
               <div className="space-y-1.5">
-                <div className="h-3 w-40 animate-pulse rounded bg-premium_pink/10" />
-                <div className="h-2.5 w-32 animate-pulse rounded bg-premium_pink/10" />
+                <div className="h-3 w-40 animate-pulse rounded bg-white/[0.04]" />
+                <div className="h-2.5 w-32 animate-pulse rounded bg-white/[0.04]" />
               </div>
             </div>
           </td>
           <td className="px-4 py-4">
-            <div className="ml-auto h-7 w-36 animate-pulse rounded bg-premium_pink/10" />
+            <div className="ml-auto h-7 w-36 animate-pulse rounded bg-white/[0.04]" />
           </td>
         </tr>
       ))}
     </>
-  );
-}
-
-function Modal({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="relative w-full max-w-md rounded-2xl border border-premium_pink/30 bg-panel_black p-6 shadow-2xl">
-        <div className="mb-4 flex items-start justify-between">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-1 text-white/60 hover:bg-premium_pink/10 hover:text-white"
-            aria-label="Cerrar"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="h-5 w-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18 18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
   );
 }
