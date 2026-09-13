@@ -4,10 +4,11 @@ import { parseLoginTokens } from "@/lib/auth/parse-login-response";
 import { fetchBackendApi } from "@/server/fetch-bff";
 
 const ERROR_MESSAGES_ES: Record<string, string> = {
-  "invalid credentials": "Correo o contraseña incorrectos",
+  "invalid credentials": "Correo/número o contraseña incorrectos",
   "user not found": "Usuario no encontrado",
   "incorrect password": "Contraseña incorrecta",
   "user already exists": "El usuario ya existe",
+  "phone number already in use": "Ese número ya está asignado a otro usuario",
 };
 
 function translateError(message: string): string {
@@ -36,18 +37,20 @@ async function extractErrorMessage(res: Response): Promise<string> {
 }
 
 export async function POST(req: NextRequest) {
-  let body: { email?: string; password?: string };
+  let body: { identifier?: string; email?: string; password?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const email = body.email?.trim();
+  // El identificador puede ser el correo o el número; `email` sigue aceptándose
+  // por si queda algún cliente viejo apuntando aquí.
+  const identifier = (body.identifier ?? body.email)?.trim();
   const password = body.password;
-  if (!email || !password) {
+  if (!identifier || !password) {
     return NextResponse.json(
-      { error: "Email y contraseña son obligatorios" },
+      { error: "Correo o número y contraseña son obligatorios" },
       { status: 400 }
     );
   }
@@ -57,7 +60,7 @@ export async function POST(req: NextRequest) {
     upstream = await fetchBackendApi("/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ identifier, password }),
     });
   } catch (e) {
     // Sin log, una `BACKEND_API_URL` ausente y un backend caído dan el mismo 502 opaco.

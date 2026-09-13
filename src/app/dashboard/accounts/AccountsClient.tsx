@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
+import { formatPhoneNumber } from "@/components/PhoneNumberField";
 import { UserRole, roleLabel } from "@/lib/roles";
 import Modal from "../_components/Modal";
 import {
@@ -31,9 +32,16 @@ type AccountsResponse = {
 
 type User = {
   id: string;
-  email: string;
+  email?: string | null;
+  phone_number?: string | null;
   role?: UserRole;
 };
+
+function displayUser(user: User): string {
+  if (user.email) return user.email;
+  if (user.phone_number) return formatPhoneNumber(user.phone_number);
+  return "—";
+}
 
 const PAGE_SIZE = 25;
 
@@ -296,7 +304,7 @@ export default function AccountsClient() {
     userSearchRef.current = setTimeout(async () => {
       setLoadingUsers(true);
       try {
-        const params = new URLSearchParams({ email: trimmed, limit: "10" });
+        const params = new URLSearchParams({ search: trimmed, limit: "10" });
         const res = await fetch(`/api/upstream/users?${params.toString()}`, {
           cache: "no-store",
         });
@@ -374,7 +382,7 @@ export default function AccountsClient() {
 
   function selectUser(user: User) {
     setSelectedUser(user);
-    setUserQuery(user.email);
+    setUserQuery(displayUser(user));
   }
 
   function clearUser() {
@@ -806,11 +814,11 @@ export default function AccountsClient() {
         >
           <form onSubmit={handleLink} className="space-y-4">
             <div className="relative">
-              <span className={LABEL_CLASS}>Correo del usuario</span>
+              <span className={LABEL_CLASS}>Correo o número del usuario</span>
               {selectedUser ? (
                 <div className="flex items-center justify-between gap-2 rounded-xl border border-[#ff0055]/25 bg-[#ff0055]/[0.06] px-3.5 py-2">
                   <span className="flex flex-wrap items-center gap-2 text-[0.8rem] text-white/80">
-                    {selectedUser.email}
+                    {displayUser(selectedUser)}
                     {selectedUser.role && (
                       <span className="inline-flex items-center rounded-lg bg-white/[0.05] px-2 py-0.5 text-[0.7rem] font-medium text-white/50 ring-1 ring-inset ring-white/[0.08]">
                         {roleLabel(selectedUser.role)}
@@ -835,7 +843,7 @@ export default function AccountsClient() {
                     autoFocus
                     value={userQuery}
                     onChange={(e) => handleUserQueryChange(e.target.value)}
-                    placeholder="Escribe el correo del usuario"
+                    placeholder="Escribe el correo o número del usuario"
                     className={`${INPUT_CLASS} pr-9`}
                   />
                   {loadingUsers && (
@@ -858,15 +866,22 @@ export default function AccountsClient() {
                       className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[0.8rem] text-white/70 transition hover:bg-white/[0.04] hover:text-white"
                     >
                       <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.08] text-[0.7rem] font-bold uppercase text-[#ff0055] ring-1 ring-[#ff0055]/15">
-                        {u.email[0]}
+                        {displayUser(u)[0] ?? "?"}
                       </div>
-                      {u.email}
+                      <span className="min-w-0">
+                        <span className="block truncate">{displayUser(u)}</span>
+                        {u.email && u.phone_number && (
+                          <span className="block font-mono text-[0.7rem] text-white/30">
+                            {formatPhoneNumber(u.phone_number)}
+                          </span>
+                        )}
+                      </span>
                     </button>
                   ))}
                 </div>
               )}
               {userQuery.trim() && !selectedUser && filteredUsers.length === 0 && !loadingUsers && (
-                <p className="mt-1.5 text-[0.75rem] text-white/20">No se encontró ningún usuario con ese correo.</p>
+                <p className="mt-1.5 text-[0.75rem] text-white/20">No se encontró ningún usuario con ese correo o número.</p>
               )}
               {selectedUser?.role === "reseller" && (
                 <p className="mt-1.5 text-[0.75rem] text-amber-200/70">

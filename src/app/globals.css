@@ -102,3 +102,35 @@ body {
   transition: background-color 9999s ease-out 0s;
   box-shadow: inset 0 0 0 1000px rgb(7 6 14);
 }
+
+/*
+ * react-phone-number-input sobre tema oscuro. La caja (borde, fondo, foco) la
+ * pone quien usa <PhoneNumberField/> vía className; aquí solo se neutraliza lo
+ * que la hoja de estilos de la librería da por sentado sobre fondo claro.
+ */
+.PhoneInput {
+  --PhoneInputCountryFlag-height: 0.95em;
+  --PhoneInputCountryFlag-borderColor: rgba(255, 255, 255, 0.15);
+  --PhoneInputCountrySelectArrow-color: rgba(255, 255, 255, 0.45);
+  --PhoneInputCountrySelectArrow-opacity: 1;
+  --PhoneInput-color--focus: #ff0055;
+}
+
+.PhoneInputInput {
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: inherit;
+}
+
+/* El popup del <select> de países lo pinta el SO: sin esto sale blanco. */
+.PhoneInputCountrySelect {
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+.PhoneInputCountrySelect option {
+  background-color: #07060e;
+  color: #f0eef5;
+}

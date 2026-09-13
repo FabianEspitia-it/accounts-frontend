@@ -11,6 +11,10 @@ import {
   formatExpiry,
   roleLabel,
 } from "@/lib/roles";
+import PhoneNumberField, {
+  formatPhoneNumber,
+  isPhoneNumberUsable,
+} from "@/components/PhoneNumberField";
 import Modal from "../_components/Modal";
 import {
   BTN_ACCENT,
@@ -36,12 +40,25 @@ type Account = {
   is_expired?: boolean;
 };
 
+/**
+ * Correo y número son identificadores de login intercambiables: el usuario
+ * tiene al menos uno, pero puede no tener los dos.
+ */
 type User = {
   id: string;
-  email: string;
+  email?: string | null;
+  /** En E.164 (+573001234567). */
+  phone_number?: string | null;
   role?: UserRole;
   accounts?: Account[];
 };
+
+/** Cómo se nombra al usuario en pantalla: su correo o, si no tiene, su número. */
+function displayName(user: User): string {
+  if (user.email) return user.email;
+  if (user.phone_number) return formatPhoneNumber(user.phone_number);
+  return "—";
+}
 
 type ListResponse = {
   total: number;
@@ -52,13 +69,36 @@ type ListResponse = {
 
 const PAGE_SIZE = 20;
 
+/** Caja del campo de teléfono: mismo aspecto que INPUT_CLASS pero con focus-within,
+ *  porque el foco lo recibe el input interno de react-phone-number-input. */
+const PHONE_FIELD_CLASS =
+  "w-full rounded-xl border border-white/[0.07] bg-white/[0.03] px-3.5 py-2 text-[0.8rem] text-white transition " +
+  "focus-within:border-[#ff0055]/40 focus-within:bg-[#ff0055]/[0.03] focus-within:shadow-[0_0_0_3px_rgba(255,0,85,0.06)]";
+
+const PHONE_HINT =
+  "Elige el país y escribe el número; con él podrá iniciar sesión.";
+
+/** El backend responde en inglés; aquí se traduce lo que ve el admin. */
+const ERROR_MESSAGES_ES: Record<string, string> = {
+  "user already exists": "Ya existe un usuario con ese correo",
+  "user not found": "Usuario no encontrado",
+  "phone number already in use": "Ese número ya está asignado a otro usuario",
+  "user needs an email or a phone number":
+    "El usuario se quedaría sin forma de entrar: necesita correo o número",
+  "número de teléfono inválido": "Número de teléfono inválido",
+};
+
+function translateError(message: string): string {
+  return ERROR_MESSAGES_ES[message.trim().toLowerCase()] ?? message;
+}
+
 async function readError(res: Response): Promise<string> {
   try {
     const data = await res.json();
-    if (typeof data?.error === "string") return data.error;
-    if (typeof data?.detail === "string") return data.detail;
+    if (typeof data?.error === "string") return translateError(data.error);
+    if (typeof data?.detail === "string") return translateError(data.detail);
     if (Array.isArray(data?.detail) && data.detail[0]?.msg) {
-      return String(data.detail[0].msg);
+      return translateError(String(data.detail[0].msg));
     }
   } catch {
     /* fallthrough */
@@ -79,9 +119,14 @@ export default function UsersClient() {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createEmail, setCreateEmail] = useState("");
+  const [createPhone, setCreatePhone] = useState("");
   const [createPassword, setCreatePassword] = useState("");
   const [createRole, setCreateRole] = useState<UserRole>("reseller");
   const [creating, setCreating] = useState(false);
+
+  const [phoneTarget, setPhoneTarget] = useState<User | null>(null);
+  const [nextPhone, setNextPhone] = useState("");
+  const [savingPhone, setSavingPhone] = useState(false);
 
   const [roleTarget, setRoleTarget] = useState<User | null>(null);
   const [nextRole, setNextRole] = useState<UserRole>("reseller");
@@ -129,7 +174,7 @@ export default function UsersClient() {
   const fetchUsers = useCallback(
     async (
       currentSkip: number,
-      emailFilter: string,
+      searchTerm: string,
       accountEmail: string,
       role: "" | UserRole,
       signal: AbortSignal
@@ -137,8 +182,9 @@ export default function UsersClient() {
       const params = new URLSearchParams();
       params.set("skip", String(currentSkip));
       params.set("limit", String(PAGE_SIZE));
-      if (emailFilter) {
-        params.set("email", emailFilter);
+      if (searchTerm) {
+        // `search` cubre correo y número; `email` solo filtraba por correo.
+        params.set("search", searchTerm);
       }
       if (accountEmail) {
         params.set("account_email", accountEmail);
@@ -216,6 +262,7 @@ export default function UsersClient() {
 
   function openCreate() {
     setCreateEmail("");
+    setCreatePhone("");
     setCreatePassword("");
     setCreateRole("reseller");
     setCreateOpen(true);
@@ -224,9 +271,18 @@ export default function UsersClient() {
   async function handleCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const email = createEmail.trim();
+    const phone = createPhone.trim();
     const password = createPassword;
-    if (!email || !password) {
-      toast.error("Email y contraseña son obligatorios");
+    if (!email && !phone) {
+      toast.error("Indica al menos un correo o un número");
+      return;
+    }
+    if (!password) {
+      toast.error("La contraseña es obligatoria");
+      return;
+    }
+    if (phone && !isPhoneNumberUsable(phone)) {
+      toast.error("El número de teléfono no es válido");
       return;
     }
 
@@ -235,7 +291,12 @@ export default function UsersClient() {
       const res = await fetch("/api/upstream/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role: createRole }),
+        body: JSON.stringify({
+          email: email || null,
+          password,
+          role: createRole,
+          phone_number: phone || null,
+        }),
       });
       if (!res.ok) {
         toast.error(await readError(res));
@@ -248,6 +309,57 @@ export default function UsersClient() {
       toast.error("Error de conexión");
     } finally {
       setCreating(false);
+    }
+  }
+
+  function openPhone(user: User) {
+    setPhoneTarget(user);
+    setNextPhone(user.phone_number ?? "");
+  }
+
+  async function handleUpdatePhone(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!phoneTarget) return;
+
+    const phone = nextPhone.trim();
+    if (!phone && !phoneTarget.email) {
+      toast.error("No puedes quitar el único dato con el que inicia sesión");
+      return;
+    }
+    if (phone && !isPhoneNumberUsable(phone)) {
+      toast.error("El número de teléfono no es válido");
+      return;
+    }
+
+    setSavingPhone(true);
+    try {
+      const res = await fetch(
+        `/api/upstream/users/${encodeURIComponent(phoneTarget.id)}/phone`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone_number: phone || null }),
+        }
+      );
+      if (!res.ok) {
+        toast.error(await readError(res));
+        return;
+      }
+      const data = (await res.json().catch(() => ({}))) as {
+        user?: { phone_number?: string | null };
+      };
+      const saved = data.user?.phone_number ?? null;
+      toast.success(saved ? "Número asignado" : "Número eliminado");
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === phoneTarget.id ? { ...u, phone_number: saved } : u
+        )
+      );
+      setPhoneTarget(null);
+    } catch {
+      toast.error("Error de conexión");
+    } finally {
+      setSavingPhone(false);
     }
   }
 
@@ -530,7 +642,7 @@ export default function UsersClient() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar por correo de usuario…"
+                placeholder="Buscar por correo o número…"
                 className={`${INPUT_CLASS} pl-9`}
               />
             </div>
@@ -685,12 +797,17 @@ export default function UsersClient() {
                     <td className="px-4 py-3">
                       <div className="flex items-start gap-3">
                         <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.08] text-[0.75rem] font-bold uppercase text-[#ff0055] ring-1 ring-[#ff0055]/15">
-                          {user.email?.[0] ?? "?"}
+                          {displayName(user)[0] ?? "?"}
                         </div>
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-white/75">{user.email}</span>
+                            <span className="text-white/75">
+                              {displayName(user)}
+                            </span>
                             <RoleBadge role={user.role} />
+                            {user.email && (
+                              <PhoneBadge phone={user.phone_number} />
+                            )}
                           </div>
                           {user.role === "advisor" && (
                             <p className="mt-1 text-[0.75rem] text-white/25">
@@ -749,6 +866,28 @@ export default function UsersClient() {
                             />
                           </svg>
                           Cambiar rol
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openPhone(user)}
+                          className={ROW_ACTION}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            aria-hidden
+                            className="size-3.5"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
+                            />
+                          </svg>
+                          {user.phone_number ? "Cambiar número" : "Asignar número"}
                         </button>
                         {user.role === "reseller" &&
                           user.accounts &&
@@ -860,11 +999,14 @@ export default function UsersClient() {
           title="Crear usuario"
         >
           <form onSubmit={handleCreate} className="space-y-4">
+            <p className="text-[0.75rem] text-white/35">
+              Indica al menos un correo o un número de teléfono. Cualquiera de
+              los dos servirá para iniciar sesión.
+            </p>
             <label className="block">
-              <span className={LABEL_CLASS}>Correo</span>
+              <span className={LABEL_CLASS}>Correo (opcional)</span>
               <input
                 type="email"
-                required
                 autoFocus
                 value={createEmail}
                 onChange={(e) => setCreateEmail(e.target.value)}
@@ -872,6 +1014,17 @@ export default function UsersClient() {
                 className={INPUT_CLASS}
               />
             </label>
+            <div>
+              <span className={LABEL_CLASS}>Número (opcional)</span>
+              <PhoneNumberField
+                value={createPhone}
+                onChange={setCreatePhone}
+                className={PHONE_FIELD_CLASS}
+              />
+              <span className="mt-1 block text-[0.7rem] text-white/25">
+                {PHONE_HINT}
+              </span>
+            </div>
             <label className="block">
               <span className={LABEL_CLASS}>Contraseña</span>
               <input
@@ -907,6 +1060,62 @@ export default function UsersClient() {
         </Modal>
       )}
 
+      {/* Modal: Asignar número */}
+      {phoneTarget && (
+        <Modal
+          onClose={() => (!savingPhone ? setPhoneTarget(null) : undefined)}
+          title={phoneTarget.phone_number ? "Cambiar número" : "Asignar número"}
+        >
+          <form onSubmit={handleUpdatePhone} className="space-y-4">
+            <p className="text-sm text-white/40">
+              Usuario:{" "}
+              <span className="font-medium text-white/80">
+                {displayName(phoneTarget)}
+              </span>
+            </p>
+
+            <div>
+              <span className={LABEL_CLASS}>Número</span>
+              <PhoneNumberField
+                value={nextPhone}
+                onChange={setNextPhone}
+                className={PHONE_FIELD_CLASS}
+                autoFocus
+              />
+              <span className="mt-1 block text-[0.7rem] text-white/25">
+                {PHONE_HINT}
+              </span>
+            </div>
+
+            {phoneTarget.email ? (
+              <p className="text-[0.75rem] text-white/25">
+                Con este número el usuario podrá iniciar sesión con su misma
+                contraseña. Déjalo vacío para quitarlo y que solo entre con correo.
+              </p>
+            ) : (
+              <p className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] px-3.5 py-2.5 text-[0.75rem] text-amber-200/80">
+                Este usuario no tiene correo, por lo que puedes cambiar su número,
+                pero no eliminarlo.
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setPhoneTarget(null)}
+                disabled={savingPhone}
+                className={BTN_GHOST}
+              >
+                Cancelar
+              </button>
+              <button type="submit" disabled={savingPhone} className={BTN_ACCENT}>
+                {savingPhone ? "Guardando…" : "Guardar número"}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
       {/* Modal: Cambiar rol */}
       {roleTarget && (
         <Modal
@@ -917,7 +1126,7 @@ export default function UsersClient() {
             <p className="text-sm text-white/40">
               Usuario:{" "}
               <span className="font-medium text-white/80">
-                {roleTarget.email}
+                {displayName(roleTarget)}
               </span>
               {roleTarget.role && (
                 <>
@@ -980,7 +1189,7 @@ export default function UsersClient() {
             <p className="text-sm text-white/40">
               Revendedor:{" "}
               <span className="font-medium text-white/80">
-                {renewTarget.email}
+                {displayName(renewTarget)}
               </span>
             </p>
 
@@ -1045,7 +1254,7 @@ export default function UsersClient() {
           <p className="text-sm text-white/50">
             ¿Seguro que deseas eliminar el usuario{" "}
             <span className="font-medium text-white/80">
-              {confirmDelete.email}
+              {displayName(confirmDelete)}
             </span>
             ? Esta acción no se puede deshacer.
           </p>
@@ -1080,7 +1289,7 @@ export default function UsersClient() {
             <p className="text-sm text-white/40">
               Usuario:{" "}
               <span className="font-medium text-white/80">
-                {passwordTarget.email}
+                {displayName(passwordTarget)}
               </span>
             </p>
 
@@ -1157,7 +1366,7 @@ export default function UsersClient() {
             <p className="text-sm text-white/40">
               Usuario:{" "}
               <span className="font-medium text-white/80">
-                {unlinkTarget.email}
+                {displayName(unlinkTarget)}
               </span>
             </p>
 
@@ -1253,6 +1462,27 @@ function RoleBadge({ role }: { role?: UserRole }) {
       className={`inline-flex items-center rounded-lg px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${styles}`}
     >
       {roleLabel(role)}
+    </span>
+  );
+}
+
+function PhoneBadge({ phone }: { phone?: string | null }) {
+  if (!phone) return null;
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/[0.08] px-2 py-0.5 font-mono text-[0.7rem] font-medium text-emerald-300/80 ring-1 ring-inset ring-emerald-500/15"
+      title="También inicia sesión con este número"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        aria-hidden
+        className="size-3"
+      >
+        <path d="M5.5 1.5h5A1.5 1.5 0 0 1 12 3v10a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 4 13V3a1.5 1.5 0 0 1 1.5-1.5Zm1 10.25a.75.75 0 1 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z" />
+      </svg>
+      {formatPhoneNumber(phone)}
     </span>
   );
 }

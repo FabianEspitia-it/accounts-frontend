@@ -5,20 +5,48 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
+import PhoneNumberField, {
+  isPhoneNumberUsable,
+} from "@/components/PhoneNumberField";
+
+/** Caja del campo de teléfono: mismo borde que los inputs, con focus-within
+ *  porque el foco lo recibe el input interno de react-phone-number-input. */
+const PHONE_FIELD_CLASS =
+  "w-full rounded-lg border-2 border-premium_pink bg-black px-3 py-2 text-white " +
+  "focus-within:ring-1 focus-within:ring-premium_pink";
+
+type LoginMode = "email" | "phone";
+
 export default function LoginPage() {
   const router = useRouter();
+  const [mode, setMode] = useState<LoginMode>("email");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    const identifier = mode === "phone" ? phone.trim() : email.trim();
+    if (!identifier) {
+      toast.error(
+        mode === "phone" ? "Escribe tu número" : "Escribe tu correo",
+        { theme: "dark" }
+      );
+      return;
+    }
+    if (mode === "phone" && !isPhoneNumberUsable(identifier)) {
+      toast.error("El número de teléfono no es válido", { theme: "dark" });
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ identifier, password }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -72,19 +100,59 @@ export default function LoginPage() {
             Iniciar sesión
           </h1>
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
-            <label className="block">
-              <span className="mb-1 block text-sm text-premium_pink">Correo</span>
-              <input
-                type="email"
-                name="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border-2 border-premium_pink bg-black px-3 py-2 text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-premium_pink"
-                placeholder="accounts@premiummm.com"
-              />
-            </label>
+            <div
+              role="tablist"
+              aria-label="Método de ingreso"
+              className="grid grid-cols-2 gap-1 rounded-lg border-2 border-premium_pink p-1"
+            >
+              {(["email", "phone"] as LoginMode[]).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === option}
+                  onClick={() => setMode(option)}
+                  className={`rounded py-1.5 text-sm font-semibold transition ${
+                    mode === option
+                      ? "bg-premium_pink text-black"
+                      : "text-premium_pink hover:bg-premium_pink/10"
+                  }`}
+                >
+                  {option === "email" ? "Correo" : "Número"}
+                </button>
+              ))}
+            </div>
+
+            {mode === "email" ? (
+              <label className="block">
+                <span className="mb-1 block text-sm text-premium_pink">
+                  Correo
+                </span>
+                <input
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-lg border-2 border-premium_pink bg-black px-3 py-2 text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-premium_pink"
+                  placeholder="accounts@premiummm.com"
+                />
+              </label>
+            ) : (
+              <div>
+                <span className="mb-1 block text-sm text-premium_pink">
+                  Número
+                </span>
+                <PhoneNumberField
+                  value={phone}
+                  onChange={setPhone}
+                  className={PHONE_FIELD_CLASS}
+                  name="phone"
+                  autoComplete="tel"
+                />
+              </div>
+            )}
             <label className="block">
               <span className="mb-1 block text-sm text-premium_pink">
                 Contraseña

@@ -16,10 +16,10 @@ import {
 
 type RequestLog = {
   id: string;
-  user_id: string;
-  requested_by: string;
+  user_id: string | null;
+  requested_by: string | null;
   email: string;
-  phone_number: string;
+  phone_number: string | null;
   service_action_id: string;
   service_action_name: string;
   service_name: string;
@@ -331,7 +331,7 @@ export default function RequestsClient() {
               onChange={(e) =>
                 setFilters((f) => ({ ...f, requested_by: e.target.value }))
               }
-              placeholder="admin@premiummm.com"
+              placeholder="Correo o número"
               className={INPUT_CLASS}
             />
           </label>
