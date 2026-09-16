@@ -245,18 +245,6 @@ export default function LoginPage() {
               </button>
             </form>
           </div>
-
-          <p className="mt-5 text-center text-[0.85rem] leading-relaxed text-site-faint">
-            ¿No puedes entrar?{" "}
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-site-muted underline-offset-4 hover:text-site-text hover:underline"
-            >
-              Escríbenos por WhatsApp
-            </a>
-          </p>
         </div>
       </main>
     </div>
