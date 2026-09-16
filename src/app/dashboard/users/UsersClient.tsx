@@ -642,7 +642,8 @@ export default function UsersClient() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar por correo o número…"
+                placeholder="Correo o número (con o sin +57)…"
+                title="El número se encuentra igual con espacios que sin ellos, y con indicativo o sin él."
                 className={`${INPUT_CLASS} pl-9`}
               />
             </div>

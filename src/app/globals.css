@@ -2,36 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * El sitio es oscuro siempre: no hay variante clara que ofrecer, así que se
+ * declara y se acabó (si no, los controles nativos salen en tema claro).
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #08060b;
+  --foreground: #f5f0f6;
+  color-scheme: dark;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nadie debería llegar a un movimiento que no pidió. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+ * Foco visible en todo el sitio. Sin `border-radius` aquí: el contorno ya
+ * sigue el del propio elemento, y fijarlo le cambiaría las esquinas al
+ * recibir el foco.
+ */
+:focus-visible {
+  outline: 2px solid #f1054d;
+  outline-offset: 2px;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
 
-  .bg-netflix {
-    background-image: url('/images/netflix_logo.jpg');
-  }
+/* ---------------------------------------------------------------------------
+ * Sitio público
+ * ------------------------------------------------------------------------- */
 
-  .bg-disney {
-    background-image: url('/images/disney_logo.jpeg');
-  }
+/*
+ * Los campos ya marcan el foco ellos mismos (borde de acento + halo), y los
+ * que van agrupados lo marcan en el grupo. Sin esto el contorno global dibuja
+ * además un rectángulo de esquinas vivas dentro de la caja redondeada.
+ */
+.site-field:focus,
+.site-field:focus-visible {
+  outline: none;
+}
+
+/*
+ * Autofill de Chrome: por defecto pinta un azul lavanda sólido que borra el
+ * fondo del campo. La sombra interna lo tapa sin romper el borde.
+ */
+.site-field:-webkit-autofill,
+.site-field:-webkit-autofill:hover,
+.site-field:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f5f0f6;
+  caret-color: #f5f0f6;
+  transition: background-color 9999s ease-out 0s;
+  box-shadow: inset 0 0 0 1000px #120c18;
+}
+
+/* Scrollbar del sitio, a juego con el fondo violeta. */
+.site-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.site-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.site-scroll::-webkit-scrollbar-thumb {
+  background: #2a1e36;
+  border-radius: 999px;
+}
+
+::selection {
+  background: rgba(241, 5, 77, 0.35);
+  color: #ffffff;
 }
 
 /* ---------------------------------------------------------------------------
@@ -122,6 +179,12 @@ body {
   border: 0;
   outline: none;
   color: inherit;
+  font: inherit;
+}
+
+/* Sin esto el marcador de posición sale con el gris del navegador. */
+.PhoneInputInput::placeholder {
+  color: #8c7f9b;
 }
 
 /* El popup del <select> de países lo pinta el SO: sin esto sale blanco. */

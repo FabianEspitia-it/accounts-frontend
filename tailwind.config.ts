@@ -22,6 +22,31 @@ const config: Config = {
         dash_bg: "#07060e",
         /** Superficie de modales del dashboard. */
         dash_panel: "#0c0c0f",
+
+        /*
+         * Sitio público. El negro tira a violeta (viene de la ilustración de
+         * fondo), no es un gris neutro: es lo que mantiene el aire de la marca
+         * cuando se le quita el brillo de neón a todo lo demás.
+         */
+        site: {
+          bg: "#08060b",
+          surface: "#120c18",
+          raised: "#1a1122",
+          line: "#2a1e36",
+          /* Escalera de texto: 15.9:1 / 8.6:1 / 5.4:1 sobre `bg`, toda AA. */
+          text: "#f5f0f6",
+          muted: "#b0a5bb",
+          faint: "#8c7f9b",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-archivo)", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: [
+          "var(--font-jetbrains-mono)",
+          "ui-monospace",
+          "SFMono-Regular",
+          "monospace",
+        ],
       },
       /*
        * Animaciones del dashboard. En accounts-platform-frontend viven en
@@ -57,6 +82,11 @@ const config: Config = {
           from: { opacity: "0", transform: "translateY(6px) scale(0.95)" },
           to: { opacity: "1", transform: "translateY(0) scale(1)" },
         },
+        /* Llegada del resultado: el único momento con movimiento del sitio. */
+        "result-in": {
+          from: { opacity: "0", transform: "translateY(10px) scale(0.98)" },
+          to: { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.5s ease-out both",
@@ -66,6 +96,7 @@ const config: Config = {
         shimmer: "shimmer 2.4s ease-in-out infinite",
         "glow-pulse": "glow-pulse 3s ease-in-out infinite",
         "count-up": "count-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "result-in": "result-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both",
       },
     },
   },

@@ -1,12 +1,29 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import { Archivo, Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const poppins = Poppins({
+/*
+ * Archivo es la voz del sitio: una grotesca ancha y firme, que aguanta el
+ * tamaño de los titulares sin el aire redondeado y publicitario de una
+ * geométrica.
+ */
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
-  weight: "500",
+  display: "swap",
+});
+
+/*
+ * Los códigos y enlaces van en monoespaciada: no es un adorno de "dato", es
+ * que se leen carácter a carácter y se dictan por WhatsApp, así que el 0 tiene
+ * que distinguirse de la O.
+ */
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 /*
@@ -28,7 +45,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Accounts Premiummm",
-  description: "Las cuentas más premiummm del parche",
+  description: "Códigos y accesos de tus cuentas de streaming, al instante.",
 };
 
 export default async function RootLayout({
@@ -39,10 +56,16 @@ export default async function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${archivo.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable}`}
     >
-      <body className={poppins.className}>
-        <ToastContainer />
+      <body className="bg-site-bg font-sans text-site-text antialiased">
+        <ToastContainer
+          theme="dark"
+          position="top-center"
+          autoClose={4000}
+          newestOnTop
+          closeOnClick
+        />
 
         {children}
       </body>
