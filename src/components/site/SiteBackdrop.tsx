@@ -21,10 +21,10 @@ export default function SiteBackdrop() {
         priority
         quality={85}
         sizes="100vw"
-        className="scale-110 object-cover object-center opacity-[0.28] blur-[3px] [mask-image:radial-gradient(75%_75%_at_82%_88%,#000_0%,transparent_72%)]"
+        className="site-backdrop-image scale-110 object-cover object-center blur-[3px] [mask-image:radial-gradient(75%_75%_at_82%_88%,#000_0%,transparent_72%)]"
       />
       <div className="absolute inset-0 bg-gradient-to-br from-site-bg via-site-bg/92 to-site-bg/70" />
-      <div className="absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-[#4b2c98]/25 blur-[120px]" />
+      <div className="absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-premium_purple/25 blur-[120px]" />
       <div className="absolute -bottom-48 right-[-10rem] h-[30rem] w-[30rem] rounded-full bg-premium_pink/12 blur-[130px]" />
     </div>
   );

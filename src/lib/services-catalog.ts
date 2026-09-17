@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 /**
  * Catálogo de plataformas y trámites.
  *
@@ -33,8 +35,17 @@ export type Platform = {
   id: PlatformId;
   /** Se pinta tal cual: es el nombre de la marca, no una etiqueta. */
   name: string;
-  /** Color de la marca; identifica la tarjeta y el trámite. */
+  /**
+   * Color de la marca; identifica la tarjeta y el trámite. Está elegido para
+   * fondo oscuro.
+   */
   color: string;
+  /**
+   * El mismo color bajado de luminosidad para fondo claro. Los de arriba se
+   * quedan entre 1,3:1 y 3:1 sobre blanco — el verde de Spotify y el lima de
+   * Universal+ directamente desaparecen.
+   */
+  colorLight: string;
   actions: ServiceAction[];
 };
 
@@ -43,6 +54,7 @@ export const PLATFORMS: Platform[] = [
     id: "netflix",
     name: "Netflix",
     color: "#ff4d4d",
+    colorLight: "#c21818",
     actions: [
       {
         slug: "netflix_update_home",
@@ -81,6 +93,7 @@ export const PLATFORMS: Platform[] = [
     id: "disney",
     name: "Disney+",
     color: "#5b9cff",
+    colorLight: "#1a5fd0",
     actions: [
       {
         slug: "disney_session_code",
@@ -100,6 +113,7 @@ export const PLATFORMS: Platform[] = [
     id: "prime",
     name: "Prime Video",
     color: "#3fd8e8",
+    colorLight: "#0b7c8a",
     actions: [
       {
         slug: "prime_session_code",
@@ -113,6 +127,7 @@ export const PLATFORMS: Platform[] = [
     id: "hbo",
     name: "HBO Max",
     color: "#b98cff",
+    colorLight: "#6a3fc4",
     actions: [
       {
         slug: "hbo_session_code",
@@ -132,6 +147,7 @@ export const PLATFORMS: Platform[] = [
     id: "youtube",
     name: "YouTube",
     color: "#ff7b72",
+    colorLight: "#c4342b",
     actions: [
       {
         slug: "youtube_session_code",
@@ -145,6 +161,7 @@ export const PLATFORMS: Platform[] = [
     id: "universal",
     name: "Universal+",
     color: "#e2f04a",
+    colorLight: "#6b7200",
     actions: [
       {
         slug: "universal_activation_code",
@@ -158,6 +175,7 @@ export const PLATFORMS: Platform[] = [
     id: "crunchyroll",
     name: "Crunchyroll",
     color: "#f47521",
+    colorLight: "#a84a06",
     actions: [
       {
         slug: "crunchyroll_link",
@@ -178,6 +196,7 @@ export const HIDDEN_PLATFORMS: Platform[] = [
     id: "spotify",
     name: "Spotify",
     color: "#1ed760",
+    colorLight: "#0c7a36",
     actions: [
       {
         slug: "spotify_session_code",
@@ -209,4 +228,16 @@ export function findService(slug: string): ResolvedAction {
     throw new Error(`Trámite desconocido: ${slug}`);
   }
   return found;
+}
+
+/**
+ * Variables que leen las utilidades `.brand-fg` / `.brand-bg` de globals.css.
+ * Se pasan las dos versiones y el CSS elige según el tema, así el servidor ya
+ * pinta el color correcto sin esperar a que hidrate nada.
+ */
+export function brandVars(platform: Platform): CSSProperties {
+  return {
+    "--brand": platform.color,
+    "--brand-light": platform.colorLight,
+  } as CSSProperties;
 }

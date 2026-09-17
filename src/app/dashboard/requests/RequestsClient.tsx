@@ -468,7 +468,7 @@ export default function RequestsClient() {
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.08] text-[0.75rem] font-bold uppercase text-[#ff0055] ring-1 ring-[#ff0055]/15">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-dash_accent/[0.08] text-[0.75rem] font-bold uppercase text-dash_accent ring-1 ring-dash_accent/15">
                           {log.requested_by?.[0] ?? "?"}
                         </div>
                         <span className="text-white/75">{log.requested_by}</span>

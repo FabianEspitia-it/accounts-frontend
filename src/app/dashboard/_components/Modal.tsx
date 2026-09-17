@@ -47,8 +47,8 @@ export default function Modal({
       >
         <div className="mb-5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.1]">
-              <span className="size-1.5 rounded-full bg-[#ff0055]" aria-hidden />
+            <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-dash_accent/[0.1]">
+              <span className="size-1.5 rounded-full bg-dash_accent" aria-hidden />
             </div>
             <h3 className="text-[0.95rem] font-bold text-white">{title}</h3>
           </div>

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type ComponentType, type ReactNode, type SVGProps } from "react";
 
+import { ThemeToggle } from "@/components/theme-toggle";
+
 /*
  * Iconos: Heroicons v2 outline, los mismos que accounts-platform-frontend usa vía
  * `react-icons/hi2`. Van inline porque aquí no hay react-icons instalado y no vale
@@ -103,10 +105,10 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="dashboard-root relative flex min-h-screen bg-[#07060e] text-white/90 antialiased">
+    <div className="dashboard-root relative flex min-h-screen bg-dash_bg text-white/90 antialiased">
       {/* Fondo atmosférico — mismo lenguaje que el login */}
       <div
-        className="pointer-events-none fixed inset-0 z-0 bg-[#07060e] [background-image:radial-gradient(ellipse_60%_50%_at_0%_50%,rgba(124,58,237,0.07),transparent_70%),radial-gradient(ellipse_50%_60%_at_85%_20%,rgba(255,0,85,0.05),transparent_60%),radial-gradient(ellipse_80%_80%_at_50%_110%,rgba(88,28,135,0.08),transparent_50%)]"
+        className="pointer-events-none fixed inset-0 z-0 bg-dash_bg [background-image:radial-gradient(ellipse_60%_50%_at_0%_50%,rgba(124,58,237,0.07),transparent_70%),radial-gradient(ellipse_50%_60%_at_85%_20%,rgba(255,0,85,0.05),transparent_60%),radial-gradient(ellipse_80%_80%_at_50%_110%,rgba(88,28,135,0.08),transparent_50%)]"
         aria-hidden
       />
 
@@ -127,7 +129,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
             className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 flex w-64 animate-fade-in flex-col border-r border-white/[0.06] bg-[#0c0c0f] shadow-2xl">
+          <aside className="absolute inset-y-0 left-0 flex w-64 animate-fade-in flex-col border-r border-white/[0.06] bg-dash_panel shadow-2xl">
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
@@ -148,7 +150,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
 
       {/* Columna principal: top bar + contenido */}
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-white/[0.06] bg-[#07060e]/80 px-6 py-3 backdrop-blur-sm md:px-8 lg:px-10">
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-white/[0.06] bg-dash_bg/80 px-6 py-3 backdrop-blur-sm md:px-8 lg:px-10">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
@@ -159,6 +161,8 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
           </button>
 
           <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle className="mr-2" />
+
             <Link
               href="/"
               className="inline-flex items-center rounded-xl px-3 py-2 text-[0.8rem] font-medium text-white/50 transition-all duration-200 hover:bg-white/[0.06] hover:text-white/80"
@@ -217,7 +221,7 @@ function SidebarContent({
             <p className="text-sm font-bold tracking-tight text-white">
               Accounts
             </p>
-            <p className="bg-gradient-to-r from-[#ff0055] to-violet-400 bg-clip-text text-[0.65rem] font-bold uppercase tracking-[0.08em] text-transparent">
+            <p className="bg-gradient-to-r from-dash_accent to-violet-400 bg-clip-text text-[0.65rem] font-bold uppercase tracking-[0.08em] text-transparent">
               Premiummm
             </p>
           </div>
@@ -237,20 +241,20 @@ function SidebarContent({
               onClick={onNavigate}
               className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.8rem] font-medium transition-all duration-200 ${
                 active
-                  ? "bg-[#ff0055]/[0.08] text-white shadow-[inset_0_0_0_1px_rgba(255,0,85,0.15)]"
+                  ? "bg-dash_accent/[0.08] text-white shadow-[inset_0_0_0_1px_rgba(255,0,85,0.15)]"
                   : "text-white/40 hover:bg-white/[0.04] hover:text-white/70"
               }`}
             >
               {active && (
                 <span
-                  className="absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-gradient-to-b from-[#ff0055] to-violet-500 shadow-[0_0_8px_rgba(255,0,85,0.5)]"
+                  className="absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-gradient-to-b from-dash_accent to-violet-500 shadow-[0_0_8px_rgba(255,0,85,0.5)]"
                   aria-hidden
                 />
               )}
               <span
                 className={
                   active
-                    ? "text-[#ff0055]"
+                    ? "text-dash_accent"
                     : "text-white/25 transition-colors group-hover:text-white/50"
                 }
               >

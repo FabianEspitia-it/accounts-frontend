@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Archivo, Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Toasts from "@/components/toasts";
+import { ThemeProvider } from "@/components/theme-provider";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 /*
  * Archivo es la voz del sitio: una grotesca ancha y firme, que aguanta el
@@ -54,20 +56,27 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // `suppressHydrationWarning`: el script de abajo escribe `data-theme` y
+    // `style.color-scheme` en <html> antes de que React hidrate, así que el
+    // marcado del servidor y el del cliente no coinciden a propósito.
     <html
       lang="es"
+      suppressHydrationWarning
       className={`${archivo.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable}`}
     >
+      <head>
+        {/*
+          Síncrono y antes del primer pintado: si el tema se aplicara desde
+          React, a quien tiene el claro guardado le daría un fogonazo oscuro en
+          cada carga.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="bg-site-bg font-sans text-site-text antialiased">
-        <ToastContainer
-          theme="dark"
-          position="top-center"
-          autoClose={4000}
-          newestOnTop
-          closeOnClick
-        />
-
-        {children}
+        <ThemeProvider>
+          <Toasts />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import LogoutButton from "@/components/LogoutButton";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
  * Barra superior del sitio. Deliberadamente corta: el trabajo está debajo, no
@@ -21,12 +22,15 @@ export default function SiteHeader() {
           height={36}
           className="h-9 w-9 object-contain"
         />
-        <span className="text-[1.05rem] font-bold tracking-tight text-premium_pink transition group-hover:text-[#ff3d72]">
+        <span className="text-[1.05rem] font-bold tracking-tight text-premium_pink transition group-hover:text-premium_pink_hover">
           Accounts Premiummm
         </span>
       </Link>
 
-      <LogoutButton />
+      <div className="flex items-center gap-3">
+        <ThemeToggle variant="site" />
+        <LogoutButton />
+      </div>
     </header>
   );
 }

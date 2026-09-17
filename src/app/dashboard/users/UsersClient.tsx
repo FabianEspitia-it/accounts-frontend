@@ -73,7 +73,7 @@ const PAGE_SIZE = 20;
  *  porque el foco lo recibe el input interno de react-phone-number-input. */
 const PHONE_FIELD_CLASS =
   "w-full rounded-xl border border-white/[0.07] bg-white/[0.03] px-3.5 py-2 text-[0.8rem] text-white transition " +
-  "focus-within:border-[#ff0055]/40 focus-within:bg-[#ff0055]/[0.03] focus-within:shadow-[0_0_0_3px_rgba(255,0,85,0.06)]";
+  "focus-within:border-dash_accent/40 focus-within:bg-dash_accent/[0.03] focus-within:shadow-[0_0_0_3px_var(--ui-accent-ring)]";
 
 const PHONE_HINT =
   "Elige el país y escribe el número; con él podrá iniciar sesión.";
@@ -797,7 +797,7 @@ export default function UsersClient() {
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-start gap-3">
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.08] text-[0.75rem] font-bold uppercase text-[#ff0055] ring-1 ring-[#ff0055]/15">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-dash_accent/[0.08] text-[0.75rem] font-bold uppercase text-dash_accent ring-1 ring-dash_accent/15">
                           {displayName(user)[0] ?? "?"}
                         </div>
                         <div className="min-w-0">
@@ -1212,7 +1212,7 @@ export default function UsersClient() {
                       type="checkbox"
                       checked={selectedRenewIds.includes(acc.id)}
                       onChange={() => toggleRenew(acc.id)}
-                      className="size-4 rounded border-white/20 bg-white/[0.03] accent-[#ff0055]"
+                      className="size-4 rounded border-white/20 bg-white/[0.03] accent-dash_accent"
                     />
                     <span className="min-w-0 flex-1 truncate">{acc.email}</span>
                     <ExpiryTag account={acc} />
@@ -1326,7 +1326,7 @@ export default function UsersClient() {
                 type="checkbox"
                 checked={showPassword}
                 onChange={(e) => setShowPassword(e.target.checked)}
-                className="size-4 rounded border-white/20 bg-white/[0.03] accent-[#ff0055]"
+                className="size-4 rounded border-white/20 bg-white/[0.03] accent-dash_accent"
               />
               Mostrar contraseñas
             </label>
@@ -1418,7 +1418,7 @@ export default function UsersClient() {
                         type="checkbox"
                         checked={selectedUnlinkIds.includes(acc.id)}
                         onChange={() => toggleUnlink(acc.id)}
-                        className="size-4 rounded border-white/20 bg-white/[0.03] accent-[#ff0055]"
+                        className="size-4 rounded border-white/20 bg-white/[0.03] accent-dash_accent"
                       />
                       {acc.email}
                     </label>
@@ -1531,7 +1531,7 @@ function RoleOptions({
           key={role}
           className={`flex cursor-pointer gap-3 rounded-xl border p-3.5 transition ${
             value === role
-              ? "border-[#ff0055]/30 bg-[#ff0055]/[0.06]"
+              ? "border-dash_accent/30 bg-dash_accent/[0.06]"
               : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
           }`}
         >
@@ -1541,7 +1541,7 @@ function RoleOptions({
             value={role}
             checked={value === role}
             onChange={() => onChange(role)}
-            className="mt-0.5 size-4 border-white/20 bg-white/[0.03] accent-[#ff0055]"
+            className="mt-0.5 size-4 border-white/20 bg-white/[0.03] accent-dash_accent"
           />
           <span className="min-w-0">
             <span className="block text-[0.8rem] font-medium text-white/80">

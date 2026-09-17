@@ -632,7 +632,7 @@ export default function AccountsClient() {
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.08] text-[0.75rem] font-bold uppercase text-[#ff0055] ring-1 ring-[#ff0055]/15">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-dash_accent/[0.08] text-[0.75rem] font-bold uppercase text-dash_accent ring-1 ring-dash_accent/15">
                           {account.email?.[0] ?? "?"}
                         </div>
                         <span className="text-white/75">{account.email}</span>
@@ -816,7 +816,7 @@ export default function AccountsClient() {
             <div className="relative">
               <span className={LABEL_CLASS}>Correo o número del usuario</span>
               {selectedUser ? (
-                <div className="flex items-center justify-between gap-2 rounded-xl border border-[#ff0055]/25 bg-[#ff0055]/[0.06] px-3.5 py-2">
+                <div className="flex items-center justify-between gap-2 rounded-xl border border-dash_accent/25 bg-dash_accent/[0.06] px-3.5 py-2">
                   <span className="flex flex-wrap items-center gap-2 text-[0.8rem] text-white/80">
                     {displayUser(selectedUser)}
                     {selectedUser.role && (
@@ -848,7 +848,7 @@ export default function AccountsClient() {
                   />
                   {loadingUsers && (
                     <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                      <svg className="size-4 animate-spin text-[#ff0055]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
+                      <svg className="size-4 animate-spin text-dash_accent" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
                       </svg>
@@ -857,7 +857,7 @@ export default function AccountsClient() {
                 </div>
               )}
               {filteredUsers.length > 0 && (
-                <div className="absolute z-10 mt-1.5 max-h-40 w-full animate-slide-down overflow-y-auto rounded-xl border border-white/[0.08] bg-[#0c0c0f] shadow-2xl">
+                <div className="absolute z-10 mt-1.5 max-h-40 w-full animate-slide-down overflow-y-auto rounded-xl border border-white/[0.08] bg-dash_panel shadow-2xl">
                   {filteredUsers.map((u) => (
                     <button
                       key={u.id}
@@ -865,7 +865,7 @@ export default function AccountsClient() {
                       onClick={() => selectUser(u)}
                       className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[0.8rem] text-white/70 transition hover:bg-white/[0.04] hover:text-white"
                     >
-                      <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-[#ff0055]/[0.08] text-[0.7rem] font-bold uppercase text-[#ff0055] ring-1 ring-[#ff0055]/15">
+                      <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-dash_accent/[0.08] text-[0.7rem] font-bold uppercase text-dash_accent ring-1 ring-dash_accent/15">
                         {displayUser(u)[0] ?? "?"}
                       </div>
                       <span className="min-w-0">
@@ -934,13 +934,13 @@ export default function AccountsClient() {
                   {selectedAccounts.map((acc) => (
                     <span
                       key={acc.id}
-                      className="inline-flex items-center gap-1 rounded-lg bg-[#ff0055]/[0.08] px-2.5 py-1 text-[0.75rem] font-medium text-[#ff0055] ring-1 ring-inset ring-[#ff0055]/20"
+                      className="inline-flex items-center gap-1 rounded-lg bg-dash_accent/[0.08] px-2.5 py-1 text-[0.75rem] font-medium text-dash_accent ring-1 ring-inset ring-dash_accent/20"
                     >
                       {acc.email}
                       <button
                         type="button"
                         onClick={() => removeAccount(acc.id)}
-                        className="ml-0.5 rounded p-0.5 text-[#ff0055]/60 transition hover:text-[#ff0055]"
+                        className="ml-0.5 rounded p-0.5 text-dash_accent/60 transition hover:text-dash_accent"
                         aria-label={`Quitar ${acc.email}`}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden className="size-3">

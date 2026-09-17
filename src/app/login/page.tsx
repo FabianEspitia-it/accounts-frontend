@@ -9,6 +9,7 @@ import PhoneNumberField, {
   isPhoneNumberUsable,
 } from "@/components/PhoneNumberField";
 import SiteBackdrop from "@/components/site/SiteBackdrop";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { PANEL } from "@/components/site/tokens";
 
 const WHATSAPP_URL = "https://wa.me/573209902636";
@@ -83,6 +84,14 @@ export default function LoginPage() {
     <div className="min-h-screen">
       <SiteBackdrop />
 
+      {/*
+        Aquí no hay cabecera, pero el tema tiene que poder cambiarse antes de
+        entrar: así la preferencia ya está guardada cuando se abre el sitio.
+      */}
+      <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
+        <ThemeToggle variant="site" />
+      </div>
+
       <main className="flex min-h-screen flex-col items-center justify-center px-5 py-12">
         <div className="w-full max-w-[25rem]">
           <div className={`p-7 sm:p-8 ${PANEL}`}>
@@ -115,7 +124,7 @@ export default function LoginPage() {
                * etiqueta va dentro, encima del texto, para que nada quede
                * huérfano arriba del campo.
                */}
-              <div className="divide-y divide-site-line overflow-hidden rounded-xl border border-site-line bg-site-raised/40 transition focus-within:border-premium_pink/55 focus-within:shadow-[0_0_0_3px_rgba(241,5,77,0.11)]">
+              <div className="divide-y divide-site-line overflow-hidden rounded-xl border border-site-line bg-site-raised/40 transition focus-within:border-premium_pink/55 focus-within:shadow-[0_0_0_3px_var(--site-accent-ring)]">
                 {mode === "email" ? (
                   <Field label="Correo" htmlFor="login-email">
                     <input
@@ -179,7 +188,7 @@ export default function LoginPage() {
               {errorMsg && (
                 <p
                   role="alert"
-                  className="mt-3.5 flex items-start gap-2 text-[0.85rem] leading-relaxed text-[#ff8a9e]"
+                  className="mt-3.5 flex items-start gap-2 text-[0.85rem] leading-relaxed text-premium_pink_soft"
                 >
                   <svg
                     viewBox="0 0 20 20"
@@ -200,7 +209,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-premium_pink text-[0.95rem] font-semibold text-white transition hover:bg-[#ff2464] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-premium_pink"
+                className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-premium_pink text-[0.95rem] font-semibold text-white transition hover:bg-premium_pink_hover active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-premium_pink"
               >
                 {loading && (
                   <svg

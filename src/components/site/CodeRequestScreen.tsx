@@ -10,7 +10,7 @@ import CopyButton from "@/components/site/CopyButton";
 import SiteBackdrop from "@/components/site/SiteBackdrop";
 import SiteHeader from "@/components/site/SiteHeader";
 import { BTN_PRIMARY, FIELD, LABEL, PANEL } from "@/components/site/tokens";
-import { findService } from "@/lib/services-catalog";
+import { brandVars, findService } from "@/lib/services-catalog";
 import type {
   CodeResponse,
   LinkResponse,
@@ -159,16 +159,13 @@ export default function CodeRequestScreen({
           Todos los servicios
         </Link>
 
-        <div className="mt-7 flex items-center gap-2.5">
-          <span
-            aria-hidden
-            className="h-2.5 w-2.5 rounded-full"
-            style={{ backgroundColor: platform.color }}
-          />
-          <span
-            className="text-[0.9rem] font-semibold"
-            style={{ color: platform.color }}
-          >
+        {/* El color de marca lo elige el CSS según el tema: ver `.brand-fg`. */}
+        <div
+          className="mt-7 flex items-center gap-2.5"
+          style={brandVars(platform)}
+        >
+          <span aria-hidden className="brand-bg h-2.5 w-2.5 rounded-full" />
+          <span className="brand-fg text-[0.9rem] font-semibold">
             {platform.name}
           </span>
         </div>

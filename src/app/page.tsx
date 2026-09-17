@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import SiteBackdrop from "@/components/site/SiteBackdrop";
 import SiteHeader from "@/components/site/SiteHeader";
-import { PLATFORMS, type Platform } from "@/lib/services-catalog";
+import { brandVars, PLATFORMS, type Platform } from "@/lib/services-catalog";
 
 /** Soporte del equipo, para cuando un trámite no da lo que se espera. */
 const WHATSAPP_URL = "https://wa.me/573209902636";
@@ -35,16 +35,13 @@ export default function Home() {
 function PlatformCard({ platform }: { platform: Platform }) {
   return (
     <article className="mb-5 break-inside-avoid overflow-hidden rounded-2xl border border-site-line bg-site-surface/70 backdrop-blur-xl">
-      <div className="flex items-center gap-2.5 border-b border-site-line px-5 py-3.5">
-        <span
-          aria-hidden
-          className="h-2.5 w-2.5 rounded-full"
-          style={{ backgroundColor: platform.color }}
-        />
-        <h2
-          className="text-[1rem] font-bold tracking-tight"
-          style={{ color: platform.color }}
-        >
+      {/* El color de marca lo elige el CSS según el tema: ver `.brand-fg`. */}
+      <div
+        className="flex items-center gap-2.5 border-b border-site-line px-5 py-3.5"
+        style={brandVars(platform)}
+      >
+        <span aria-hidden className="brand-bg h-2.5 w-2.5 rounded-full" />
+        <h2 className="brand-fg text-[1rem] font-bold tracking-tight">
           {platform.name}
         </h2>
       </div>

@@ -1,4 +1,50 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
+
+/**
+ * Todo color que cambie entre temas se declara como canal RGB en una variable
+ * y se compone aquí con `<alpha-value>`. Así `bg-site-surface/80` o
+ * `text-white/25` siguen funcionando exactamente igual: Tailwind pone la
+ * opacidad y la variable pone el color, que es lo único que cambia al pasar de
+ * oscuro a claro (ver `globals.css`).
+ */
+const themed = (variable: string) => `rgb(var(${variable}) / <alpha-value>)`;
+
+/**
+ * Tonos de estado usados como TEXTO (`text-red-300`, `text-emerald-400`…).
+ * Están elegidos para brillar sobre negro y sobre blanco se quedan entre 1,5:1
+ * y 2,5:1, así que en claro bajan a su equivalente oscuro.
+ *
+ * Los tonos 500 no entran aquí: sólo se usan como fondo o anillo con opacidad
+ * (`bg-red-500/[0.08]`, `ring-emerald-500/30`), y al 8-30 % dan un tinte que
+ * funciona igual sobre los dos lienzos.
+ */
+const stateColors = {
+  red: {
+    ...colors.red,
+    200: themed("--c-red-200"),
+    300: themed("--c-red-300"),
+    400: themed("--c-red-400"),
+  },
+  emerald: {
+    ...colors.emerald,
+    300: themed("--c-emerald-300"),
+    400: themed("--c-emerald-400"),
+  },
+  amber: { ...colors.amber, 200: themed("--c-amber-200") },
+  sky: {
+    ...colors.sky,
+    200: themed("--c-sky-200"),
+    300: themed("--c-sky-300"),
+  },
+  fuchsia: { ...colors.fuchsia, 300: themed("--c-fuchsia-300") },
+  rose: { ...colors.rose, 300: themed("--c-rose-300") },
+  purple: { ...colors.purple, 300: themed("--c-purple-300") },
+  orange: { ...colors.orange, 300: themed("--c-orange-300") },
+  green: { ...colors.green, 300: themed("--c-green-300") },
+  yellow: { ...colors.yellow, 200: themed("--c-yellow-200") },
+  blue: { ...colors.blue, 300: themed("--c-blue-300") },
+};
 
 const config: Config = {
   content: [
@@ -6,37 +52,57 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: ["selector", '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
+        ...stateColors,
         background: "var(--background)",
         foreground: "var(--foreground)",
         principal_blue: "#075480",
         /** Superficie base del panel y del login (negro de la marca). */
         panel_black: "#0a0a0a",
+
+        /*
+         * El dashboard está escrito sobre blanco (`text-white/25`,
+         * `bg-white/[0.03]`, `border-white/[0.06]`…). Redefinir aquí `white`
+         * como variable es lo que permite que en tema claro esas mismas ~200
+         * utilidades pasen a pintar tinta oscura, sin un `dark:` por clase.
+         *
+         * `black` no se toca: los velos de modal (`bg-black/70`) son oscuros
+         * en los dos temas.
+         */
+        white: themed("--ink-rgb"),
+
         /** Acento principal de Accounts Premiummm. */
-        premium_pink: "#f1054d",
+        premium_pink: themed("--premium-pink-rgb"),
+        /** Rosa del hover y de los mensajes de error sobre el acento. */
+        premium_pink_hover: themed("--premium-pink-hover-rgb"),
+        premium_pink_soft: themed("--premium-pink-soft-rgb"),
         /** Acento secundario (hover / estados). */
         premium_purple: "#4b2c98",
         /** Lienzo del dashboard — mismo valor que accounts-platform-frontend. */
-        dash_bg: "#07060e",
+        dash_bg: themed("--dash-bg-rgb"),
         /** Superficie de modales del dashboard. */
-        dash_panel: "#0c0c0f",
+        dash_panel: themed("--dash-panel-rgb"),
+        /** Acento del dashboard (#ff0055 en oscuro), distinto del del sitio. */
+        dash_accent: themed("--dash-accent-rgb"),
 
         /*
          * Sitio público. El negro tira a violeta (viene de la ilustración de
          * fondo), no es un gris neutro: es lo que mantiene el aire de la marca
-         * cuando se le quita el brillo de neón a todo lo demás.
+         * cuando se le quita el brillo de neón a todo lo demás. En claro se
+         * conserva ese mismo sesgo violeta, sólo que hacia el blanco.
          */
         site: {
-          bg: "#08060b",
-          surface: "#120c18",
-          raised: "#1a1122",
-          line: "#2a1e36",
+          bg: themed("--site-bg-rgb"),
+          surface: themed("--site-surface-rgb"),
+          raised: themed("--site-raised-rgb"),
+          line: themed("--site-line-rgb"),
           /* Escalera de texto: 15.9:1 / 8.6:1 / 5.4:1 sobre `bg`, toda AA. */
-          text: "#f5f0f6",
-          muted: "#b0a5bb",
-          faint: "#8c7f9b",
+          text: themed("--site-text-rgb"),
+          muted: themed("--site-muted-rgb"),
+          faint: themed("--site-faint-rgb"),
         },
       },
       fontFamily: {

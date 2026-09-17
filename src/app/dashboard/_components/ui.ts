@@ -9,7 +9,7 @@
 /** Inputs, selects y textareas. */
 export const INPUT_CLASS =
   "w-full rounded-xl border border-white/[0.07] bg-white/[0.03] px-3.5 py-2 text-[0.8rem] text-white outline-none transition placeholder:text-white/15 " +
-  "focus:border-[#ff0055]/40 focus:bg-[#ff0055]/[0.03] focus:shadow-[0_0_0_3px_rgba(255,0,85,0.06)]";
+  "focus:border-dash_accent/40 focus:bg-dash_accent/[0.03] focus:shadow-[0_0_0_3px_var(--ui-accent-ring)]";
 
 /** Etiqueta de campo: versalitas finas sobre el input. */
 export const LABEL_CLASS =
@@ -21,7 +21,7 @@ export const BTN_NEUTRAL =
 
 /** Botón de acento (acción principal del formulario). */
 export const BTN_ACCENT =
-  "inline-flex items-center justify-center gap-2 rounded-lg bg-[#ff0055]/10 px-4 py-2 text-[0.75rem] font-medium tracking-wide text-[#ff0055] ring-1 ring-[#ff0055]/30 transition hover:bg-[#ff0055]/20 hover:ring-[#ff0055]/50 disabled:cursor-not-allowed disabled:opacity-40";
+  "inline-flex items-center justify-center gap-2 rounded-lg bg-dash_accent/10 px-4 py-2 text-[0.75rem] font-medium tracking-wide text-dash_accent ring-1 ring-dash_accent/30 transition hover:bg-dash_accent/20 hover:ring-dash_accent/50 disabled:cursor-not-allowed disabled:opacity-40";
 
 /** Botón fantasma (cancelar, limpiar). */
 export const BTN_GHOST =
@@ -57,4 +57,4 @@ export const MODAL_OVERLAY =
 
 /** Panel del modal. */
 export const MODAL_PANEL =
-  "relative w-full animate-fade-in rounded-2xl border border-white/[0.08] bg-[#0c0c0f] p-6 shadow-2xl";
+  "relative w-full animate-fade-in rounded-2xl border border-white/[0.08] bg-dash_panel p-6 shadow-2xl";
