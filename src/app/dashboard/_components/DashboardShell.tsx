@@ -108,7 +108,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
     <div className="dashboard-root relative flex min-h-screen bg-dash_bg text-white/90 antialiased">
       {/* Fondo atmosférico — mismo lenguaje que el login */}
       <div
-        className="pointer-events-none fixed inset-0 z-0 bg-dash_bg [background-image:radial-gradient(ellipse_60%_50%_at_0%_50%,rgba(124,58,237,0.07),transparent_70%),radial-gradient(ellipse_50%_60%_at_85%_20%,rgba(255,0,85,0.05),transparent_60%),radial-gradient(ellipse_80%_80%_at_50%_110%,rgba(88,28,135,0.08),transparent_50%)]"
+        className="dashboard-backdrop pointer-events-none fixed inset-0 z-0 bg-dash_bg"
         aria-hidden
       />
 

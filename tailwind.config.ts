@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import colors from "tailwindcss/colors";
+import plugin from "tailwindcss/plugin";
 
 /**
  * Todo color que cambie entre temas se declara como canal RGB en una variable
@@ -166,6 +167,17 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    /*
+     * `light:` — el reverso de `dark:`. Casi todo el tema claro sale solo de
+     * reinterpretar `--ink-rgb` (ver globals.css), pero hay decisiones que no
+     * son un color con otra opacidad sino otra idea: en oscuro una tarjeta se
+     * eleva aclarándose sobre el lienzo, y en claro se eleva volviéndose blanca
+     * sobre un lienzo teñido, con sombra. Eso necesita decirse por clase.
+     */
+    plugin(({ addVariant }) => {
+      addVariant("light", '&:is(html[data-theme="light"] *)');
+    }),
+  ],
 };
 export default config;

@@ -420,7 +420,7 @@ export default function RequestsClient() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[920px] text-left text-sm">
             <thead className="border-b border-white/[0.06]">
-              <tr className="bg-white/[0.03]">
+              <tr className="bg-white/[0.03] light:bg-[var(--ui-thead)]">
                 <th className={TH}>Solicitado por</th>
                 <th className={TH}>Correo cliente</th>
                 <th className={TH}>Teléfono</th>

@@ -35,9 +35,15 @@ export const BTN_DANGER =
 export const BTN_ICON =
   "rounded-lg p-1.5 text-white/25 transition-all duration-200 hover:bg-white/[0.08] hover:text-white/60 disabled:cursor-not-allowed disabled:opacity-40";
 
-/** Tarjeta/panel: filtros, bloques de formulario, contenedores de tabla. */
+/**
+ * Tarjeta/panel: filtros, bloques de formulario, contenedores de tabla.
+ *
+ * En oscuro se eleva aclarándose sobre el lienzo y con el borde basta. En claro
+ * el fondo ya es casi blanco (`bg-white/[0.02]` pasa a blanco puro en
+ * globals.css) y la separación tiene que venir de la sombra.
+ */
 export const CARD =
-  "rounded-2xl border border-white/[0.06] bg-white/[0.02]";
+  "rounded-2xl border border-white/[0.06] bg-white/[0.02] light:shadow-[shadow:var(--ui-card-shadow)]";
 
 /** Celda de cabecera de tabla. */
 export const TH =

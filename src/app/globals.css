@@ -104,9 +104,22 @@ html[data-theme="light"] {
   --premium-pink-hover-rgb: 164 3 52;
   --premium-pink-soft-rgb: 159 11 44;
 
-  --dash-bg-rgb: 251 251 253;
+  /*
+   * El lienzo del dashboard NO es blanco a propósito. En oscuro una superficie
+   * se eleva aclarándose sobre el fondo; si en claro el fondo ya es blanco, la
+   * tarjeta no tiene hacia dónde aclararse y todo queda al mismo nivel. Con el
+   * lienzo teñido, las tarjetas pasan a ser blancas y la jerarquía vuelve.
+   */
+  --dash-bg-rgb: 242 240 247;
   --dash-panel-rgb: 255 255 255;
   --dash-accent-rgb: 209 0 63;
+
+  /* Superficie elevada (tarjetas, sidebar, campos) y su sombra. */
+  --ui-elevated: #ffffff;
+  /* Banda de cabecera de tabla: dentro de una tarjeta blanca hace falta tinte. */
+  --ui-thead: #f4f2f9;
+  --ui-card-shadow: 0 1px 2px rgba(24, 16, 40, 0.05),
+    0 14px 34px -22px rgba(24, 16, 40, 0.4);
 
   /*
    * El sitio conserva el sesgo violeta de la marca, sólo que hacia el blanco.
@@ -129,16 +142,16 @@ html[data-theme="light"] {
   --site-selection-bg: rgba(197, 4, 63, 0.2);
   --site-selection-fg: #1a1122;
 
-  --ui-line: rgba(23, 20, 31, 0.18);
+  --ui-line: rgba(23, 20, 31, 0.22);
   --ui-text: rgba(23, 20, 31, 0.92);
-  --ui-muted: rgba(23, 20, 31, 0.5);
-  --ui-placeholder: rgba(23, 20, 31, 0.35);
-  --ui-scrollbar: rgba(23, 20, 31, 0.18);
-  --ui-scrollbar-hover: rgba(23, 20, 31, 0.3);
-  --ui-surface: rgba(23, 20, 31, 0.02);
-  --ui-surface-line: rgba(23, 20, 31, 0.08);
+  --ui-muted: rgba(23, 20, 31, 0.6);
+  --ui-placeholder: rgba(23, 20, 31, 0.45);
+  --ui-scrollbar: rgba(23, 20, 31, 0.22);
+  --ui-scrollbar-hover: rgba(23, 20, 31, 0.36);
+  --ui-surface: #ffffff;
+  --ui-surface-line: rgba(23, 20, 31, 0.12);
   --ui-autofill-bg: #ffffff;
-  --ui-accent-ring: rgba(209, 0, 63, 0.1);
+  --ui-accent-ring: rgba(209, 0, 63, 0.16);
   --ui-selection-bg: rgba(209, 0, 63, 0.22);
   --ui-selection-fg: #17141f;
   --ui-option-bg: #ffffff;
@@ -313,6 +326,48 @@ body {
     "Segoe UI", sans-serif;
 }
 
+/*
+ * Fondo atmosférico del dashboard. Vivía escrito como clase arbitraria en
+ * DashboardShell, pero los halos son colores literales y no pueden depender de
+ * `--ink-rgb`: sobre el lienzo claro, los mismos porcentajes dejan una mancha
+ * sucia en vez de atmósfera, así que el tema claro los rebaja.
+ */
+.dashboard-backdrop {
+  background-image: radial-gradient(
+      ellipse 60% 50% at 0% 50%,
+      rgba(124, 58, 237, 0.07),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 60% at 85% 20%,
+      rgba(255, 0, 85, 0.05),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 80% 80% at 50% 110%,
+      rgba(88, 28, 135, 0.08),
+      transparent 50%
+    );
+}
+
+html[data-theme="light"] .dashboard-backdrop {
+  background-image: radial-gradient(
+      ellipse 60% 50% at 0% 50%,
+      rgba(124, 58, 237, 0.05),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 60% at 85% 20%,
+      rgba(209, 0, 63, 0.03),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 80% 80% at 50% 110%,
+      rgba(88, 28, 135, 0.05),
+      transparent 50%
+    );
+}
+
 /* `font-mono` dentro del dashboard usa Geist Mono (teléfonos y fechas en tablas). */
 .dashboard-root .font-mono {
   font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
@@ -358,6 +413,11 @@ body {
 .dashboard-root .glass-card {
   background: var(--ui-surface);
   border: 1px solid var(--ui-surface-line);
+}
+
+/* En claro el borde solo no basta para separar del lienzo: hace falta sombra. */
+html[data-theme="light"] .dashboard-root .glass-card {
+  box-shadow: var(--ui-card-shadow);
 }
 
 /* Autofill de Chrome dentro del dashboard: sin lavanda sobre fondo oscuro. */
@@ -406,4 +466,375 @@ body {
 .PhoneInputCountrySelect option {
   background-color: var(--ui-option-bg);
   color: var(--ui-option-fg);
+}
+
+/* ---------------------------------------------------------------------------
+ * Dashboard en claro — recalibrado de la escalera de opacidades
+ *
+ * Redefinir `--ink-rgb` invierte los colores, pero no la percepción: sobre
+ * negro, blanco al 6 % ya es un borde que se ve; sobre blanco, tinta al 6 % no
+ * es nada. De ahí que el dashboard en claro saliera plano — todo dibujado y
+ * nada separado. Cada peldaño (`text-white/25`, `border-white/[0.06]`,
+ * `bg-white/[0.04]`…) necesita su propio valor en claro, no el mismo número.
+ *
+ * Se resuelve aquí, una vez, y no con un `light:` por clase: son ~40 utilidades
+ * repartidas por tres vistas de más de mil líneas. Los selectores usan
+ * `[class~="…"]` para leerse igual que en el JSX, y el prefijo del tema va
+ * dentro de `:where()` para no sumar especificidad: así estas reglas le ganan a
+ * Tailwind por orden de aparición, y un `light:` puntual en un componente les
+ * sigue ganando a ellas.
+ *
+ * El color se compone con `rgb(var(--ink-rgb) / …)` y no con un rgba fijo
+ * porque dentro de un relleno de acento `--ink-rgb` vuelve a ser blanco de
+ * verdad (ver `.on-accent`): allí sólo sube la opacidad, no cambia el tono.
+ * ------------------------------------------------------------------------- */
+
+html[data-theme="light"] .dashboard-root {
+  color: rgb(var(--ink-rgb) / 0.95);
+}
+
+/* --- Texto e iconos -------------------------------------------------------
+ * La escalera se comprime hacia arriba: en claro los tonos medios necesitan
+ * mucha más tinta para mantener el mismo contraste, y los altos casi ninguno.
+ */
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="placeholder:text-white/15"]::placeholder {
+  color: rgb(var(--ink-rgb) / 0.32);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/15"] {
+  color: rgb(var(--ink-rgb) / 0.32);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/20"] {
+  color: rgb(var(--ink-rgb) / 0.38);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/25"] {
+  color: rgb(var(--ink-rgb) / 0.5);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/30"] {
+  color: rgb(var(--ink-rgb) / 0.56);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/35"] {
+  color: rgb(var(--ink-rgb) / 0.6);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/40"] {
+  color: rgb(var(--ink-rgb) / 0.64);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/50"] {
+  color: rgb(var(--ink-rgb) / 0.72);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/60"] {
+  color: rgb(var(--ink-rgb) / 0.8);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/70"] {
+  color: rgb(var(--ink-rgb) / 0.86);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/75"] {
+  color: rgb(var(--ink-rgb) / 0.88);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/80"] {
+  color: rgb(var(--ink-rgb) / 0.91);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-white/90"] {
+  color: rgb(var(--ink-rgb) / 0.95);
+}
+
+:where(html[data-theme="light"] .dashboard-root)
+  .group:hover
+  [class~="group-hover:text-white/50"],
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:text-white/60"]:hover {
+  color: rgb(var(--ink-rgb) / 0.8);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:text-white/70"]:hover {
+  color: rgb(var(--ink-rgb) / 0.86);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:text-white/80"]:hover {
+  color: rgb(var(--ink-rgb) / 0.91);
+}
+
+/* --- Superficies ----------------------------------------------------------
+ * Los dos peldaños más bajos no son un tinte: son el gesto de elevarse. En
+ * oscuro se aclaran sobre el lienzo; en claro se vuelven blancos sobre él.
+ * Por eso tarjetas, sidebar y campos pasan a blanco en vez de a gris —
+ * teñirlos los hundiría por debajo del lienzo, que es justo lo contrario.
+ */
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-white/[0.02]"],
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-white/[0.03]"] {
+  background-color: var(--ui-elevated);
+}
+
+/* De aquí para arriba sí son tintes: píldoras, esqueletos de carga, botones. */
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-white/[0.04]"] {
+  background-color: rgb(var(--ink-rgb) / 0.06);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-white/[0.05]"] {
+  background-color: rgb(var(--ink-rgb) / 0.07);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-white/[0.06]"] {
+  background-color: rgb(var(--ink-rgb) / 0.08);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-white/[0.08]"] {
+  background-color: rgb(var(--ink-rgb) / 0.1);
+}
+
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:bg-white/[0.02]"]:hover {
+  background-color: rgb(var(--ink-rgb) / 0.045);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:bg-white/[0.04]"]:hover {
+  background-color: rgb(var(--ink-rgb) / 0.06);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:bg-white/[0.05]"]:hover {
+  background-color: rgb(var(--ink-rgb) / 0.07);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:bg-white/[0.06]"]:hover {
+  background-color: rgb(var(--ink-rgb) / 0.08);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:bg-white/[0.08]"]:hover {
+  background-color: rgb(var(--ink-rgb) / 0.1);
+}
+
+/* --- Bordes, anillos y separadores ---------------------------------------
+ * Donde más se notaba el problema: una línea de tinta al 6 % sobre blanco
+ * desaparece, y con ella el contorno de cada tarjeta, campo y fila.
+ */
+:where(html[data-theme="light"] .dashboard-root) [class~="border-white/[0.06]"] {
+  border-color: rgb(var(--ink-rgb) / 0.13);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="border-white/[0.07]"] {
+  border-color: rgb(var(--ink-rgb) / 0.15);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="border-white/[0.08]"] {
+  border-color: rgb(var(--ink-rgb) / 0.17);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="border-white/20"] {
+  border-color: rgb(var(--ink-rgb) / 0.32);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-white/[0.07]"] {
+  --tw-ring-color: rgb(var(--ink-rgb) / 0.15);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-white/[0.08]"] {
+  --tw-ring-color: rgb(var(--ink-rgb) / 0.17);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="divide-white/[0.04]"]
+  > :not([hidden])
+  ~ :not([hidden]) {
+  border-color: rgb(var(--ink-rgb) / 0.1);
+}
+
+/* --- Acento ---------------------------------------------------------------
+ * Los rellenos y anillos de acento se escribieron para brillar sobre negro;
+ * sobre blanco al 8-30 % son un rosa lavado.
+ *
+ * Aquí y en las píldoras de abajo el selector es `[class~=…]` (token exacto) y
+ * no `[class*=…]`: el atributo de un input lleva literalmente
+ * `focus:bg-dash_accent/[0.03]`, así que un `*=` por subcadena le pintaría el
+ * relleno de foco de forma permanente. Cada paso se nombra entero.
+ */
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-dash_accent/10"],
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-dash_accent/[0.06]"],
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-dash_accent/[0.08]"],
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-dash_accent/[0.1]"],
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="bg-dash_accent/[0.12]"] {
+  background-color: rgb(var(--dash-accent-rgb) / 0.12);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-dash_accent/15"],
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-dash_accent/20"],
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-dash_accent/30"] {
+  --tw-ring-color: rgb(var(--dash-accent-rgb) / 0.4);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="border-dash_accent/25"],
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="border-dash_accent/30"] {
+  border-color: rgb(var(--dash-accent-rgb) / 0.4);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-dash_accent/60"] {
+  color: rgb(var(--dash-accent-rgb) / 0.85);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:ring-dash_accent/50"]:hover {
+  --tw-ring-color: rgb(var(--dash-accent-rgb) / 0.6);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="focus:border-dash_accent/40"]:focus,
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="focus-within:border-dash_accent/40"]:focus-within {
+  border-color: rgb(var(--dash-accent-rgb) / 0.65);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="focus:bg-dash_accent/[0.03]"]:focus,
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="focus-within:bg-dash_accent/[0.03]"]:focus-within {
+  background-color: rgb(var(--dash-accent-rgb) / 0.05);
+}
+
+/* El filo del ítem activo del menú: literal en el JSX, invisible sobre blanco. */
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="shadow-[inset_0_0_0_1px_rgba(255,0,85,0.15)]"] {
+  --tw-shadow: inset 0 0 0 1px rgb(var(--dash-accent-rgb) / 0.3);
+}
+
+/* --- Píldoras de estado ---------------------------------------------------
+ * El texto ya baja de tono en claro (ver `--c-*` arriba), pero además llega
+ * rebajado con `/80` o `/70`, que sobre un fondo pálido lo deja por debajo de
+ * AA. En claro va a pleno, y el anillo de la píldora deja de ser un susurro.
+ */
+:where(html[data-theme="light"] .dashboard-root) [class~="text-red-300/80"],
+:where(html[data-theme="light"] .dashboard-root) [class~="text-red-300/70"] {
+  color: rgb(var(--c-red-300));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-red-200/70"] {
+  color: rgb(var(--c-red-200));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-emerald-300/80"] {
+  color: rgb(var(--c-emerald-300));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-amber-200/80"],
+:where(html[data-theme="light"] .dashboard-root) [class~="text-amber-200/70"] {
+  color: rgb(var(--c-amber-200));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-sky-300/80"] {
+  color: rgb(var(--c-sky-300));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-sky-200/70"] {
+  color: rgb(var(--c-sky-200));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-fuchsia-300/80"] {
+  color: rgb(var(--c-fuchsia-300));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-rose-300/80"] {
+  color: rgb(var(--c-rose-300));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-purple-300/80"] {
+  color: rgb(var(--c-purple-300));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-orange-300/80"] {
+  color: rgb(var(--c-orange-300));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-green-300/80"] {
+  color: rgb(var(--c-green-300));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-yellow-200/80"] {
+  color: rgb(var(--c-yellow-200));
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="text-blue-300/80"] {
+  color: rgb(var(--c-blue-300));
+}
+
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-red-500/[0.06]"],
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-red-500/[0.07]"],
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-red-500/[0.08]"] {
+  background-color: rgb(239 68 68 / 0.11);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-emerald-500/[0.08]"],
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-emerald-500/[0.1]"] {
+  background-color: rgb(16 185 129 / 0.11);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-amber-500/[0.06]"],
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-amber-500/[0.08]"] {
+  background-color: rgb(245 158 11 / 0.15);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-sky-500/[0.08]"] {
+  background-color: rgb(14 165 233 / 0.11);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="bg-fuchsia-500/[0.08]"] {
+  background-color: rgb(217 70 239 / 0.11);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-rose-500/[0.08]"] {
+  background-color: rgb(244 63 94 / 0.11);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-purple-500/[0.08]"] {
+  background-color: rgb(168 85 247 / 0.11);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-orange-500/[0.08]"] {
+  background-color: rgb(249 115 22 / 0.11);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-green-500/[0.08]"] {
+  background-color: rgb(34 197 94 / 0.11);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-yellow-500/[0.08]"] {
+  background-color: rgb(234 179 8 / 0.15);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="bg-blue-500/[0.08]"] {
+  background-color: rgb(59 130 246 / 0.11);
+}
+
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-red-500/15"],
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-red-500/25"] {
+  --tw-ring-color: rgb(239 68 68 / 0.42);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-emerald-500/15"],
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-emerald-500/20"],
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-emerald-500/30"] {
+  --tw-ring-color: rgb(16 185 129 / 0.45);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-amber-500/15"] {
+  --tw-ring-color: rgb(245 158 11 / 0.55);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-sky-500/15"] {
+  --tw-ring-color: rgb(14 165 233 / 0.42);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-fuchsia-500/15"] {
+  --tw-ring-color: rgb(217 70 239 / 0.42);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-rose-500/15"] {
+  --tw-ring-color: rgb(244 63 94 / 0.42);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-purple-500/15"] {
+  --tw-ring-color: rgb(168 85 247 / 0.42);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-orange-500/15"] {
+  --tw-ring-color: rgb(249 115 22 / 0.42);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-green-500/15"] {
+  --tw-ring-color: rgb(34 197 94 / 0.42);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-yellow-500/15"] {
+  --tw-ring-color: rgb(234 179 8 / 0.55);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="ring-blue-500/15"] {
+  --tw-ring-color: rgb(59 130 246 / 0.42);
+}
+
+:where(html[data-theme="light"] .dashboard-root) [class~="border-red-500/20"],
+:where(html[data-theme="light"] .dashboard-root) [class~="border-red-500/25"] {
+  border-color: rgb(239 68 68 / 0.38);
+}
+:where(html[data-theme="light"] .dashboard-root) [class~="border-amber-500/20"] {
+  border-color: rgb(245 158 11 / 0.45);
+}
+
+/* Los hover tienen que quedar por encima de las bases recién subidas. */
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:bg-red-500/[0.08]"]:hover,
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:bg-red-500/[0.1]"]:hover,
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:bg-red-500/[0.14]"]:hover {
+  background-color: rgb(239 68 68 / 0.18);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:bg-emerald-500/[0.14]"]:hover,
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:bg-emerald-500/20"]:hover {
+  background-color: rgb(16 185 129 / 0.18);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:ring-red-500/25"]:hover,
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:ring-red-500/40"]:hover {
+  --tw-ring-color: rgb(239 68 68 / 0.6);
+}
+:where(html[data-theme="light"] .dashboard-root)
+  [class~="hover:ring-emerald-500/50"]:hover {
+  --tw-ring-color: rgb(16 185 129 / 0.6);
 }

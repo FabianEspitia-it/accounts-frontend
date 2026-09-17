@@ -588,7 +588,7 @@ export default function AccountsClient() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[420px] text-left text-sm">
             <thead className="border-b border-white/[0.06]">
-              <tr className="bg-white/[0.03]">
+              <tr className="bg-white/[0.03] light:bg-[var(--ui-thead)]">
                 <th className={TH}>Correo</th>
                 <th className={`${TH} text-right`}>Acciones</th>
               </tr>
