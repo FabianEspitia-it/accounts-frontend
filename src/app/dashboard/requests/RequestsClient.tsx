@@ -1,7 +1,15 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "react-toastify";
+import { roleLabel, UserRole } from "@/lib/roles";
 import {
   BADGE,
   BTN_ACCENT,
@@ -14,15 +22,23 @@ import {
   TH,
 } from "../_components/ui";
 
+/** De dónde salió la solicitud; lo decide el backend según el teléfono. */
+type RequestOrigin = "whatsapp" | "page";
+
 type RequestLog = {
   id: string;
   user_id: string | null;
   requested_by: string | null;
+  requested_by_name: string | null;
+  requested_by_role: UserRole | null;
   email: string;
   phone_number: string | null;
   service_action_id: string;
   service_action_name: string;
   service_name: string;
+  /** Código o enlace entregado. Null en las solicitudes viejas. */
+  code: string | null;
+  origin: RequestOrigin | null;
   created_at: string;
 };
 
@@ -418,14 +434,16 @@ export default function RequestsClient() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[920px] text-left text-sm">
+          <table className="w-full min-w-[1180px] text-left text-sm">
             <thead className="border-b border-white/[0.06]">
               <tr className="bg-white/[0.03] light:bg-[var(--ui-thead)]">
                 <th className={TH}>Solicitado por</th>
                 <th className={TH}>Correo cliente</th>
                 <th className={TH}>Teléfono</th>
+                <th className={TH}>Origen</th>
                 <th className={TH}>Servicio</th>
                 <th className={TH}>Acción</th>
+                <th className={TH}>Código</th>
                 <th className={TH}>Fecha</th>
               </tr>
             </thead>
@@ -434,7 +452,7 @@ export default function RequestsClient() {
 
               {!loading && errorMsg && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center">
+                  <td colSpan={8} className="px-4 py-12 text-center">
                     <p className="text-sm text-red-300/80">{errorMsg}</p>
                     <button
                       type="button"
@@ -450,7 +468,7 @@ export default function RequestsClient() {
               {!loading && !errorMsg && items.length === 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={8}
                     className="px-4 py-12 text-center text-sm text-white/20"
                   >
                     {hasFilters
@@ -467,16 +485,31 @@ export default function RequestsClient() {
                     className="transition-colors hover:bg-white/[0.02]"
                   >
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-start gap-3">
                         <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-dash_accent/[0.08] text-[0.75rem] font-bold uppercase text-dash_accent ring-1 ring-dash_accent/15">
                           {log.requested_by?.[0] ?? "?"}
                         </div>
-                        <span className="text-white/75">{log.requested_by}</span>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-white/75">
+                              {log.requested_by ?? "—"}
+                            </span>
+                            <RoleBadge role={log.requested_by_role} />
+                          </div>
+                          {log.requested_by_name && (
+                            <p className="mt-1 truncate text-[0.75rem] text-white/25">
+                              {log.requested_by_name}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-white/50">{log.email}</td>
                     <td className="whitespace-nowrap px-4 py-3 font-mono text-[0.8rem] text-white/50">
                       {log.phone_number || "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <OriginBadge origin={log.origin} />
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -489,6 +522,9 @@ export default function RequestsClient() {
                     </td>
                     <td className="px-4 py-3 text-white/50">
                       {log.service_action_name}
+                    </td>
+                    <td className="px-4 py-3">
+                      <CodeCell code={log.code} />
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 font-mono text-[0.75rem] text-white/35">
                       {formatDateTime(log.created_at)}
@@ -557,6 +593,160 @@ export default function RequestsClient() {
   );
 }
 
+/**
+ * Etiqueta de asesor o revendedor junto a quien pidió el código.
+ *
+ * Mismos colores que la tabla de usuarios: quien ve las dos pantallas no
+ * tiene que volver a aprenderse el código de color.
+ */
+function RoleBadge({ role }: { role?: UserRole | null }) {
+  if (!role) return null;
+  const styles =
+    role === "advisor"
+      ? "bg-sky-500/[0.08] text-sky-300/80 ring-sky-500/15"
+      : role === "admin"
+      ? "bg-amber-500/[0.08] text-amber-300/80 ring-amber-500/15"
+      : "bg-fuchsia-500/[0.08] text-fuchsia-300/80 ring-fuchsia-500/15";
+  return (
+    <span
+      className={`inline-flex items-center rounded-lg px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${styles}`}
+    >
+      {roleLabel(role)}
+    </span>
+  );
+}
+
+/** Si la solicitud entró por el bot de WhatsApp o por el formulario web. */
+function OriginBadge({ origin }: { origin?: RequestOrigin | null }) {
+  if (!origin) return <span className="text-white/20">—</span>;
+
+  const isWhatsapp = origin === "whatsapp";
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[0.7rem] font-medium ring-1 ring-inset ${
+        isWhatsapp
+          ? "bg-emerald-500/[0.08] text-emerald-300/80 ring-emerald-500/15"
+          : "bg-white/[0.05] text-white/45 ring-white/[0.08]"
+      }`}
+      title={
+        isWhatsapp
+          ? "Pedida por el bot de WhatsApp"
+          : "Pedida desde el panel web"
+      }
+    >
+      {isWhatsapp ? (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          aria-hidden
+          className="size-3 shrink-0"
+        >
+          <path d="M8 1.5a6.5 6.5 0 0 0-5.6 9.78L1.5 14.5l3.34-.86A6.5 6.5 0 1 0 8 1.5Zm3.74 9.1c-.16.44-.94.85-1.3.88-.33.03-.75.05-1.21-.08a10.9 10.9 0 0 1-1.1-.4c-1.93-.84-3.2-2.8-3.29-2.93-.1-.13-.8-1.05-.8-2s.5-1.42.68-1.62a.72.72 0 0 1 .52-.24h.37c.12 0 .28-.04.44.34.16.4.55 1.35.6 1.45.05.1.08.22.02.35-.07.13-.1.21-.2.33l-.29.34c-.1.1-.2.2-.08.4.11.2.5.84 1.08 1.36.74.66 1.37.87 1.57.97.2.1.31.08.43-.05.11-.13.49-.57.62-.77.13-.2.26-.16.44-.1.17.07 1.12.53 1.31.63.2.1.32.14.37.22.05.09.05.48-.11.92Z" />
+        </svg>
+      ) : (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.4}
+          aria-hidden
+          className="size-3 shrink-0"
+        >
+          <rect x="1.8" y="2.6" width="12.4" height="9" rx="1.4" />
+          <path strokeLinecap="round" d="M1.8 5.4h12.4M5.5 13.9h5" />
+        </svg>
+      )}
+      {isWhatsapp ? "WhatsApp" : "Página"}
+    </span>
+  );
+}
+
+/** Longitud a partir de la cual lo entregado ya no es un código sino un enlace. */
+const CODE_INLINE_MAX = 24;
+
+/**
+ * El código o enlace que se entregó.
+ *
+ * Los enlaces (restablecer contraseña, actualizar hogar) traen cientos de
+ * caracteres y romperían la fila, así que se recortan y el valor completo se
+ * obtiene copiándolo.
+ */
+function CodeCell({ code }: { code?: string | null }) {
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, []);
+
+  const value = (code ?? "").trim();
+  if (!value) {
+    return (
+      <span
+        className="text-white/20"
+        title="Esta solicitud es anterior a que se guardara el código"
+      >
+        —
+      </span>
+    );
+  }
+
+  const isLong = value.length > CODE_INLINE_MAX;
+  const shown = isLong ? `${value.slice(0, CODE_INLINE_MAX - 1)}…` : value;
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      // Contexto no seguro o permiso denegado: el título de la celda sigue
+      // mostrando el valor completo para copiarlo a mano.
+      return;
+    }
+    setCopied(true);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      aria-live="polite"
+      title={isLong ? value : "Copiar"}
+      className="group inline-flex max-w-[15rem] items-center gap-1.5 rounded-lg bg-white/[0.04] px-2 py-1 font-mono text-[0.75rem] text-white/60 ring-1 ring-inset ring-white/[0.06] transition hover:bg-white/[0.08] hover:text-white"
+    >
+      <span className="truncate">{copied ? "Copiado" : shown}</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.6}
+        aria-hidden
+        className={`size-3 shrink-0 ${
+          copied ? "text-emerald-400" : "text-white/25 group-hover:text-white/60"
+        }`}
+      >
+        {copied ? (
+          <path strokeLinecap="round" strokeLinejoin="round" d="m4 10.5 4 4 8-8" />
+        ) : (
+          <>
+            <rect x="7" y="7" width="9.5" height="9.5" rx="2" />
+            <path
+              strokeLinecap="round"
+              d="M13 4.5A1.5 1.5 0 0 0 11.5 3h-6A2.5 2.5 0 0 0 3 5.5v6A1.5 1.5 0 0 0 4.5 13"
+            />
+          </>
+        )}
+      </svg>
+    </button>
+  );
+}
+
 function SkeletonRows() {
   return (
     <>
@@ -575,10 +765,16 @@ function SkeletonRows() {
             <div className="h-3 w-32 animate-pulse rounded bg-white/[0.04]" />
           </td>
           <td className="px-4 py-4">
+            <div className="h-5 w-24 animate-pulse rounded-lg bg-white/[0.04]" />
+          </td>
+          <td className="px-4 py-4">
             <div className="h-5 w-20 animate-pulse rounded-lg bg-white/[0.04]" />
           </td>
           <td className="px-4 py-4">
             <div className="h-3 w-48 animate-pulse rounded bg-white/[0.04]" />
+          </td>
+          <td className="px-4 py-4">
+            <div className="h-5 w-24 animate-pulse rounded-lg bg-white/[0.04]" />
           </td>
           <td className="px-4 py-4">
             <div className="h-3 w-32 animate-pulse rounded bg-white/[0.04]" />

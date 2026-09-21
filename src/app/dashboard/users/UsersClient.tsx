@@ -15,6 +15,12 @@ import PhoneNumberField, {
   formatPhoneNumber,
   isPhoneNumberUsable,
 } from "@/components/PhoneNumberField";
+import {
+  GENERATED_PASSWORD_LENGTH,
+  MIN_PASSWORD_LENGTH,
+  generatePassword,
+} from "@/lib/password";
+import CredentialsModal, { type Credentials } from "./CredentialsModal";
 import Modal from "../_components/Modal";
 import {
   BTN_ACCENT,
@@ -121,8 +127,15 @@ export default function UsersClient() {
   const [createEmail, setCreateEmail] = useState("");
   const [createPhone, setCreatePhone] = useState("");
   const [createPassword, setCreatePassword] = useState("");
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
   const [createRole, setCreateRole] = useState<UserRole>("reseller");
   const [creating, setCreating] = useState(false);
+
+  /**
+   * Resumen de acceso que se muestra al terminar de crear o editar. Vive fuera
+   * de cada modal para poder abrirse justo cuando el otro se cierra.
+   */
+  const [credentials, setCredentials] = useState<Credentials | null>(null);
 
   const [phoneTarget, setPhoneTarget] = useState<User | null>(null);
   const [nextPhone, setNextPhone] = useState("");
@@ -264,6 +277,7 @@ export default function UsersClient() {
     setCreateEmail("");
     setCreatePhone("");
     setCreatePassword("");
+    setShowCreatePassword(false);
     setCreateRole("reseller");
     setCreateOpen(true);
   }
@@ -279,6 +293,12 @@ export default function UsersClient() {
     }
     if (!password) {
       toast.error("La contraseña es obligatoria");
+      return;
+    }
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      toast.error(
+        `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres`
+      );
       return;
     }
     if (phone && !isPhoneNumberUsable(phone)) {
@@ -304,6 +324,15 @@ export default function UsersClient() {
       }
       toast.success(`Usuario creado como ${roleLabel(createRole).toLowerCase()}`);
       setCreateOpen(false);
+      setCredentials({
+        title: "Usuario creado",
+        intro:
+          "Estos son los datos con los que entrará. Cópialos y envíaselos.",
+        email: email || null,
+        phone: phone || null,
+        password,
+        role: createRole,
+      });
       reload();
     } catch {
       toast.error("Error de conexión");
@@ -356,6 +385,14 @@ export default function UsersClient() {
         )
       );
       setPhoneTarget(null);
+      setCredentials({
+        title: saved ? "Número asignado" : "Número eliminado",
+        intro: "Así queda el acceso del usuario.",
+        email: phoneTarget.email ?? null,
+        phone: saved,
+        password: null,
+        role: phoneTarget.role,
+      });
     } catch {
       toast.error("Error de conexión");
     } finally {
@@ -393,6 +430,14 @@ export default function UsersClient() {
       }
       toast.success(`Rol actualizado a ${roleLabel(nextRole).toLowerCase()}`);
       setRoleTarget(null);
+      setCredentials({
+        title: "Rol actualizado",
+        intro: "Así queda el acceso del usuario.",
+        email: roleTarget.email ?? null,
+        phone: roleTarget.phone_number ?? null,
+        password: null,
+        role: nextRole,
+      });
       reload();
     } catch {
       toast.error("Error de conexión");
@@ -476,8 +521,10 @@ export default function UsersClient() {
     e.preventDefault();
     if (!passwordTarget) return;
 
-    if (newPassword.length < 6) {
-      toast.error("La contraseña debe tener al menos 6 caracteres");
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      toast.error(
+        `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres`
+      );
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -501,6 +548,15 @@ export default function UsersClient() {
       }
       toast.success("Contraseña actualizada");
       setPasswordTarget(null);
+      setCredentials({
+        title: "Contraseña actualizada",
+        intro:
+          "Estos son los datos con los que entrará. Cópialos y envíaselos.",
+        email: passwordTarget.email ?? null,
+        phone: passwordTarget.phone_number ?? null,
+        password: newPassword,
+        role: passwordTarget.role,
+      });
     } catch {
       toast.error("Error de conexión");
     } finally {
@@ -1026,18 +1082,37 @@ export default function UsersClient() {
                 {PHONE_HINT}
               </span>
             </div>
-            <label className="block">
-              <span className={LABEL_CLASS}>Contraseña</span>
+            <div>
+              <div className="flex items-center justify-between gap-3">
+                <span className={LABEL_CLASS}>Contraseña</span>
+                <GeneratePasswordButton
+                  onGenerate={(value) => {
+                    setCreatePassword(value);
+                    // Generada a ciegas no sirve de nada: hay que poder leerla
+                    // para dictarla.
+                    setShowCreatePassword(true);
+                  }}
+                />
+              </div>
               <input
-                type="password"
+                type={showCreatePassword ? "text" : "password"}
                 required
-                minLength={6}
+                minLength={MIN_PASSWORD_LENGTH}
                 value={createPassword}
                 onChange={(e) => setCreatePassword(e.target.value)}
                 placeholder="••••••••"
                 className={INPUT_CLASS}
               />
-            </label>
+              <label className="mt-2 flex cursor-pointer items-center gap-2.5 text-[0.75rem] text-white/40 transition hover:text-white/70">
+                <input
+                  type="checkbox"
+                  checked={showCreatePassword}
+                  onChange={(e) => setShowCreatePassword(e.target.checked)}
+                  className="size-4 rounded border-white/20 bg-white/[0.03] accent-dash_accent"
+                />
+                Mostrar contraseña
+              </label>
+            </div>
 
             <div>
               <span className={LABEL_CLASS}>Rol</span>
@@ -1294,26 +1369,38 @@ export default function UsersClient() {
               </span>
             </p>
 
-            <label className="block">
-              <span className={LABEL_CLASS}>Nueva contraseña</span>
+            <div>
+              <div className="flex items-center justify-between gap-3">
+                <span className={LABEL_CLASS}>Nueva contraseña</span>
+                <GeneratePasswordButton
+                  onGenerate={(value) => {
+                    // Se rellena también la confirmación: volver a teclear a
+                    // mano una contraseña que acaba de salir de un sorteo solo
+                    // añade erratas.
+                    setNewPassword(value);
+                    setConfirmPassword(value);
+                    setShowPassword(true);
+                  }}
+                />
+              </div>
               <input
                 type={showPassword ? "text" : "password"}
                 required
                 autoFocus
-                minLength={6}
+                minLength={MIN_PASSWORD_LENGTH}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="••••••••"
                 className={INPUT_CLASS}
               />
-            </label>
+            </div>
 
             <label className="block">
               <span className={LABEL_CLASS}>Confirmar contraseña</span>
               <input
                 type={showPassword ? "text" : "password"}
                 required
-                minLength={6}
+                minLength={MIN_PASSWORD_LENGTH}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
@@ -1448,7 +1535,53 @@ export default function UsersClient() {
           </form>
         </Modal>
       )}
+
+      {/* Modal: credenciales para copiar, tras crear o editar */}
+      {credentials && (
+        <CredentialsModal
+          credentials={credentials}
+          onClose={() => setCredentials(null)}
+        />
+      )}
     </div>
+  );
+}
+
+/**
+ * Sortea una contraseña de entrega y la mete en el campo.
+ *
+ * Es la vía normal de poner contraseña: las inventadas a mano acaban siendo la
+ * misma para todos los revendedores.
+ */
+function GeneratePasswordButton({
+  onGenerate,
+}: {
+  onGenerate: (value: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onGenerate(generatePassword())}
+      title={`${GENERATED_PASSWORD_LENGTH} caracteres: minúsculas y números`}
+      className="mb-2 inline-flex items-center gap-1.5 rounded-lg bg-dash_accent/[0.08] px-2.5 py-1 text-[0.7rem] font-medium text-dash_accent ring-1 ring-inset ring-dash_accent/20 transition hover:bg-dash_accent/[0.14]"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.6}
+        stroke="currentColor"
+        aria-hidden
+        className="size-3.5"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M16.023 9.348h4.992V4.356M2.985 19.644v-4.992h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+        />
+      </svg>
+      Generar
+    </button>
   );
 }
 
