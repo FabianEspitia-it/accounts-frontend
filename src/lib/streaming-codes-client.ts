@@ -3,7 +3,13 @@ import { getBackendBaseUrl } from "@/lib/env";
 
 export type StreamingResult<T> =
   | { ok: true; data: T }
-  | { ok: false; status: number };
+  /**
+   * `detail` es el mensaje del backend, ya en español y pensado para leerse.
+   * Hace falta porque un mismo código puede significar cosas distintas: un 403
+   * es "esta cuenta no es tuya" o "estás fuera de tu horario", y la pantalla
+   * no puede adivinar cuál.
+   */
+  | { ok: false; status: number; detail?: string };
 
 export type CodeResponse = { code: string };
 export type LinkResponse = { link: string };
@@ -14,7 +20,6 @@ type Service =
   | "hbo"
   | "prime"
   | "spotify"
-  | "youtube"
   | "universal"
   | "crunchyroll";
 
@@ -28,7 +33,6 @@ const SERVICE_BASE_OVERRIDES: Record<Service, string | undefined> = {
   hbo: process.env.NEXT_PUBLIC_HBO,
   prime: process.env.NEXT_PUBLIC_PRIME,
   spotify: process.env.NEXT_PUBLIC_SPOTIFY,
-  youtube: process.env.NEXT_PUBLIC_YOUTUBE,
   universal: process.env.NEXT_PUBLIC_UNIVERSAL,
   crunchyroll: process.env.NEXT_PUBLIC_CRUNCHYROLL,
 };
@@ -38,6 +42,16 @@ function buildServiceUrl(service: Service, path: string): string {
   const base = override || `${getBackendBaseUrl()}/${service}`;
   const normalized = path.startsWith("/") ? path : `/${path}`;
   return `${base}${normalized}`;
+}
+
+/** El `detail` de FastAPI, si vino y es texto. */
+async function readDetail(res: Response): Promise<string | undefined> {
+  try {
+    const data = await res.json();
+    return typeof data?.detail === "string" ? data.detail : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 async function authHeaders(): Promise<Headers | null> {
@@ -69,7 +83,7 @@ async function request<T>(
     });
 
     if (!res.ok) {
-      return { ok: false, status: res.status };
+      return { ok: false, status: res.status, detail: await readDetail(res) };
     }
 
     const data = (await res.json()) as T;
@@ -169,17 +183,6 @@ export function requestSpotifySessionCode(
   email: string
 ): Promise<StreamingResult<CodeResponse>> {
   return postJson<CodeResponse>("spotify", "/session_code/", { email });
-}
-
-/* ---------------------------------- YouTube --------------------------------- */
-
-export function requestYoutubeSessionCode(
-  email: string
-): Promise<StreamingResult<CodeResponse>> {
-  return getJson<CodeResponse>(
-    "youtube",
-    `/session_code/${encodeURIComponent(email)}`
-  );
 }
 
 /* --------------------------------- Universal -------------------------------- */

@@ -13,7 +13,6 @@ export type PlatformId =
   | "disney"
   | "prime"
   | "hbo"
-  | "youtube"
   | "universal"
   | "spotify"
   | "crunchyroll";
@@ -140,20 +139,6 @@ export const PLATFORMS: Platform[] = [
         title: "Restablecer contraseña",
         description: "Enlace para cambiar la contraseña de la cuenta.",
         kind: "link",
-      },
-    ],
-  },
-  {
-    id: "youtube",
-    name: "YouTube",
-    color: "#ff7b72",
-    colorLight: "#c4342b",
-    actions: [
-      {
-        slug: "youtube_session_code",
-        title: "Código de inicio de sesión",
-        description: "El código de verificación de la cuenta de Google.",
-        kind: "code",
       },
     ],
   },

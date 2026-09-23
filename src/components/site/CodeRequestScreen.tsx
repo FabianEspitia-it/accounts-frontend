@@ -60,14 +60,19 @@ export default function CodeRequestScreen({
   const [loading, setLoading] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>({ state: "idle" });
 
-  function failureMessage(status: number): string {
+  function failureMessage(status: number, detail?: string): string {
     switch (status) {
       case 0:
         return "No hay conexión con el servidor. Revisa tu internet e inténtalo otra vez.";
       case 400:
         return "Ese correo no tiene un formato válido. Revísalo e inténtalo otra vez.";
       case 403:
-        return "Esa cuenta no está asignada a tu usuario, o tu acceso ya venció. Pide al administrador que te la asigne o la renueve.";
+        // El backend distingue entre "esta cuenta no es tuya" y "estás fuera
+        // de tu horario"; desde acá no se puede, así que manda su mensaje.
+        return (
+          detail ??
+          "Esa cuenta no está asignada a tu usuario, o tu acceso ya venció. Pide al administrador que te la asigne o la renueve."
+        );
       case 404:
         return `Todavía no llega ${
           isLink ? "el enlace" : "el código"
@@ -100,7 +105,10 @@ export default function CodeRequestScreen({
         return;
       }
 
-      setOutcome({ state: "failed", message: failureMessage(result.status) });
+      setOutcome({
+        state: "failed",
+        message: failureMessage(result.status, result.detail),
+      });
     } catch {
       setOutcome({ state: "failed", message: failureMessage(0) });
     } finally {

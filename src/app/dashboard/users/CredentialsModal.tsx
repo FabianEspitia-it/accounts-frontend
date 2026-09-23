@@ -21,7 +21,50 @@ export type Credentials = {
   phone: string | null;
   password: string | null;
   role?: UserRole;
+  /**
+   * Qué mensaje de entrega se arma para pegarle al vendedor. La cabecera de
+   * "contraseñas actualizadas" solo tiene sentido cuando de verdad se le
+   * cambió la contraseña a alguien que ya entraba; al crearlo se omite.
+   */
+  announcement?: "password-updated" | "new-user";
 };
+
+/** Dónde entra el vendedor. Va en el mensaje, no en la pantalla. */
+const CODES_URL = "https://www.accountspremiummm.com/";
+
+const ANNOUNCEMENT_HEADER =
+  "🔒 CONTRASEÑAS ACTUALIZADAS – USO EXCLUSIVO PARA VENDEDORES 🔒";
+
+/**
+ * El mensaje completo listo para WhatsApp: acceso, credenciales y el aviso de
+ * monitoreo. Los asteriscos simples son los que WhatsApp pinta en negrita.
+ */
+function announcementText(creds: Credentials): string | null {
+  // Sin usuario o sin contraseña el mensaje no sirve para entrar, así que no
+  // se ofrece: es justo lo que pasa al editar solo el rol o el número.
+  const user = creds.email ?? creds.phone;
+  if (!creds.announcement || !user || !creds.password) return null;
+
+  const lines: string[] = [];
+  if (creds.announcement === "password-updated") {
+    lines.push(ANNOUNCEMENT_HEADER, "");
+  }
+  lines.push(
+    `🌐 Accede a nuestra página de códigos desde: ${CODES_URL}`,
+    "",
+    `usuario : ${user}`,
+    `clave : ${creds.password}`,
+    "",
+    "⚠️ *AVISO IMPORTANTE*",
+    "",
+    "El uso de la plataforma y las solicitudes realizadas son *monitoreados constantemente*.",
+    "",
+    "🚨 Si detectamos alguna solicitud sospechosa o uso indebido, el usuario será *bloqueado de inmediato*, se notificará a los administradores y las cuentas asociadas podrán ser *cortadas sin derecho a devolución*.",
+    "",
+    "✅ *Use correctamente la plataforma y evite bloqueos.*"
+  );
+  return lines.join("\n");
+}
 
 /** Texto de una línea "Etiqueta: valor", omitiendo lo que no aplica. */
 function shareableText(creds: Credentials): string {
@@ -148,44 +191,61 @@ export default function CredentialsModal({
   onClose: () => void;
 }) {
   const [copiedAll, copyAll] = useCopy();
+  const [copiedMessage, copyMessage] = useCopy();
   const text = shareableText(credentials);
+  const announcement = announcementText(credentials);
 
   return (
     <Modal title={credentials.title} onClose={onClose}>
       <div className="space-y-4">
         <p className="text-[0.8rem] text-white/45">{credentials.intro}</p>
 
-        <div className="divide-y divide-white/[0.05] overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.02]">
-          {credentials.email && (
-            <CopyRow label="Correo" value={credentials.email} />
-          )}
-          {credentials.phone && (
-            <CopyRow
-              label="Número"
-              value={formatPhoneNumber(credentials.phone)}
-              // Se copia en E.164: es lo que espera el formulario de login y
-              // lo que WhatsApp entiende como número marcable.
-              copyValue={credentials.phone}
-            />
-          )}
-          {credentials.password && (
-            <CopyRow
-              label="Contraseña"
-              value={credentials.password}
-              emphasis
-            />
-          )}
-          {credentials.role && (
-            <div className="px-3.5 py-2.5">
+        {!announcement && (
+          <div className="divide-y divide-white/[0.05] overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.02]">
+            {credentials.email && (
+              <CopyRow label="Correo" value={credentials.email} />
+            )}
+            {credentials.phone && (
+              <CopyRow
+                label="Número"
+                value={formatPhoneNumber(credentials.phone)}
+                // Se copia en E.164: es lo que espera el formulario de login y
+                // lo que WhatsApp entiende como número marcable.
+                copyValue={credentials.phone}
+              />
+            )}
+            {credentials.password && (
+              <CopyRow
+                label="Contraseña"
+                value={credentials.password}
+                emphasis
+              />
+            )}
+            {credentials.role && (
+              <div className="px-3.5 py-2.5">
+                <span className="block text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/30">
+                  Rol
+                </span>
+                <span className="mt-0.5 block text-[0.85rem] text-white/70">
+                  {roleLabel(credentials.role)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {announcement && (
+          <div className="overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.02]">
+            <div className="border-b border-white/[0.05] px-3.5 py-2.5">
               <span className="block text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/30">
-                Rol
-              </span>
-              <span className="mt-0.5 block text-[0.85rem] text-white/70">
-                {roleLabel(credentials.role)}
+                Mensaje para el vendedor
               </span>
             </div>
-          )}
-        </div>
+            <pre className="max-h-56 select-all overflow-y-auto whitespace-pre-wrap break-words px-3.5 py-3 font-sans text-[0.75rem] leading-relaxed text-white/60">
+              {announcement}
+            </pre>
+          </div>
+        )}
 
         {credentials.password ? (
           <p className="rounded-xl bg-amber-500/[0.06] px-3.5 py-2.5 text-[0.75rem] text-amber-200/70 ring-1 ring-inset ring-amber-500/15">
@@ -202,15 +262,27 @@ export default function CredentialsModal({
           <button type="button" onClick={onClose} className={BTN_GHOST}>
             Cerrar
           </button>
-          <button
-            type="button"
-            onClick={() => copyAll(text)}
-            aria-live="polite"
-            className={BTN_ACCENT}
-          >
-            <CopyIcon copied={copiedAll} />
-            {copiedAll ? "Copiado" : "Copiar todo"}
-          </button>
+          {announcement ? (
+            <button
+              type="button"
+              onClick={() => copyMessage(announcement)}
+              aria-live="polite"
+              className={BTN_ACCENT}
+            >
+              <CopyIcon copied={copiedMessage} />
+              {copiedMessage ? "Copiado" : "Copiar mensaje"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => copyAll(text)}
+              aria-live="polite"
+              className={BTN_ACCENT}
+            >
+              <CopyIcon copied={copiedAll} />
+              {copiedAll ? "Copiado" : "Copiar todo"}
+            </button>
+          )}
         </div>
       </div>
     </Modal>

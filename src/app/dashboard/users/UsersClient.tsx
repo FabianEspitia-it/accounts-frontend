@@ -20,7 +20,13 @@ import {
   MIN_PASSWORD_LENGTH,
   generatePassword,
 } from "@/lib/password";
+import {
+  ScheduleSlot,
+  describeSchedule,
+  isWithinSchedule,
+} from "@/lib/schedule";
 import CredentialsModal, { type Credentials } from "./CredentialsModal";
+import ScheduleModal from "./ScheduleModal";
 import Modal from "../_components/Modal";
 import {
   BTN_ACCENT,
@@ -57,6 +63,8 @@ type User = {
   phone_number?: string | null;
   role?: UserRole;
   accounts?: Account[];
+  /** Solo los asesores lo usan. Vacío o ausente = entra a cualquier hora. */
+  schedule?: ScheduleSlot[];
 };
 
 /** Cómo se nombra al usuario en pantalla: su correo o, si no tiene, su número. */
@@ -92,10 +100,30 @@ const ERROR_MESSAGES_ES: Record<string, string> = {
   "user needs an email or a phone number":
     "El usuario se quedaría sin forma de entrar: necesita correo o número",
   "número de teléfono inválido": "Número de teléfono inválido",
+  "el horario solo aplica a los asesores":
+    "El horario solo aplica a los asesores",
 };
 
 function translateError(message: string): string {
   return ERROR_MESSAGES_ES[message.trim().toLowerCase()] ?? message;
+}
+
+/** Qué pasó con el reflejo en la plataforma, si el backend lo contó. */
+type MirrorReport = { ok: boolean; matched: boolean; reason?: string | null };
+
+async function readMirror(res: Response): Promise<MirrorReport | null> {
+  try {
+    const data = await res.json();
+    const mirror = data?.mirror;
+    if (!mirror || typeof mirror !== "object") return null;
+    return {
+      ok: Boolean(mirror.ok),
+      matched: Boolean(mirror.matched),
+      reason: typeof mirror.reason === "string" ? mirror.reason : null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 async function readError(res: Response): Promise<string> {
@@ -157,6 +185,9 @@ export default function UsersClient() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+
+  const [scheduleTarget, setScheduleTarget] = useState<User | null>(null);
+  const [savingSchedule, setSavingSchedule] = useState(false);
 
   const [unlinkTarget, setUnlinkTarget] = useState<User | null>(null);
   const [unlinkQuery, setUnlinkQuery] = useState("");
@@ -332,6 +363,7 @@ export default function UsersClient() {
         phone: phone || null,
         password,
         role: createRole,
+        announcement: "new-user",
       });
       reload();
     } catch {
@@ -510,6 +542,48 @@ export default function UsersClient() {
     }
   }
 
+  async function handleSaveSchedule(slots: ScheduleSlot[]) {
+    if (!scheduleTarget) return;
+    setSavingSchedule(true);
+    try {
+      const res = await fetch(
+        `/api/upstream/users/${encodeURIComponent(scheduleTarget.id)}/schedule`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slots }),
+        }
+      );
+      if (!res.ok) {
+        toast.error(await readError(res));
+        return;
+      }
+      toast.success(
+        slots.length > 0 ? "Horario actualizado" : "Horario quitado"
+      );
+
+      // El horario se administra en los dos paneles y se refleja en el otro al
+      // guardar. Si el reflejo no llegó, el admin tiene que enterarse: de lo
+      // contrario creería que ya quedó sincronizado en ambos lados.
+      const mirror = await readMirror(res);
+      if (mirror?.reason) {
+        toast.warning(mirror.reason, { autoClose: 8000 });
+      }
+      // Se refleja en la fila sin recargar el listado: el admin suele ajustar
+      // varios asesores seguidos.
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === scheduleTarget.id ? { ...u, schedule: slots } : u
+        )
+      );
+      setScheduleTarget(null);
+    } catch {
+      toast.error("Error de conexión");
+    } finally {
+      setSavingSchedule(false);
+    }
+  }
+
   function openPassword(user: User) {
     setPasswordTarget(user);
     setNewPassword("");
@@ -556,6 +630,7 @@ export default function UsersClient() {
         phone: passwordTarget.phone_number ?? null,
         password: newPassword,
         role: passwordTarget.role,
+        announcement: "password-updated",
       });
     } catch {
       toast.error("Error de conexión");
@@ -871,6 +946,9 @@ export default function UsersClient() {
                               Consulta códigos de cualquier correo.
                             </p>
                           )}
+                          {user.role === "advisor" && (
+                            <ScheduleTag slots={user.schedule} />
+                          )}
                           {user.accounts && user.accounts.length > 0 && (
                             <ul className="mt-1.5 space-y-1">
                               {user.accounts.map((acc) => (
@@ -994,6 +1072,30 @@ export default function UsersClient() {
                               />
                             </svg>
                             Desvincular cuentas
+                          </button>
+                        )}
+                        {user.role === "advisor" && (
+                          <button
+                            type="button"
+                            onClick={() => setScheduleTarget(user)}
+                            className={ROW_ACTION}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.5}
+                              stroke="currentColor"
+                              aria-hidden
+                              className="size-3.5"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                              />
+                            </svg>
+                            Horario
                           </button>
                         )}
                         <button
@@ -1537,6 +1639,16 @@ export default function UsersClient() {
       )}
 
       {/* Modal: credenciales para copiar, tras crear o editar */}
+      {scheduleTarget && (
+        <ScheduleModal
+          userName={displayName(scheduleTarget)}
+          initialSlots={scheduleTarget.schedule ?? []}
+          saving={savingSchedule}
+          onSave={handleSaveSchedule}
+          onClose={() => (!savingSchedule ? setScheduleTarget(null) : undefined)}
+        />
+      )}
+
       {credentials && (
         <CredentialsModal
           credentials={credentials}
@@ -1597,6 +1709,49 @@ function RoleBadge({ role }: { role?: UserRole }) {
     >
       {roleLabel(role)}
     </span>
+  );
+}
+
+/**
+ * Horario del asesor bajo su nombre.
+ *
+ * Marca además si está dentro o fuera de turno ahora mismo: el admin suele
+ * abrir esta pantalla justamente porque alguien le dijo que no puede entrar.
+ * Es solo informativo; quien decide es el backend en cada petición.
+ */
+function ScheduleTag({ slots }: { slots?: ScheduleSlot[] }) {
+  if (!slots || slots.length === 0) return null;
+
+  const active = isWithinSchedule(slots);
+
+  return (
+    <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[0.75rem] text-white/35">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        aria-hidden
+        className="size-3 shrink-0 text-white/20"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+      </svg>
+      {describeSchedule(slots)}
+      <span
+        className={`inline-flex items-center rounded-lg px-1.5 py-0.5 text-[0.65rem] font-medium ring-1 ring-inset ${
+          active
+            ? "bg-emerald-500/[0.08] text-emerald-300/80 ring-emerald-500/15"
+            : "bg-amber-500/[0.08] text-amber-200/70 ring-amber-500/15"
+        }`}
+      >
+        {active ? "En turno" : "Fuera de turno"}
+      </span>
+    </p>
   );
 }
 
