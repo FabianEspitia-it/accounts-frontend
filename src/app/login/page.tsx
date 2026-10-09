@@ -5,54 +5,58 @@ import { FormEvent, ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-import PhoneNumberField, {
-  isPhoneNumberUsable,
-} from "@/components/PhoneNumberField";
+import { parsePhoneNumber } from "react-phone-number-input";
 import SiteBackdrop from "@/components/site/SiteBackdrop";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PANEL } from "@/components/site/tokens";
 
 const WHATSAPP_URL = "https://wa.me/573209902636";
 
-type LoginMode = "email" | "phone";
+/** Mismo criterio que el backend: solo dígitos (con "+" y separadores) es un número. */
+function looksLikePhone(value: string): boolean {
+  return /^\+?\d+$/.test(value.replace(/[\s\-().]/g, ""));
+}
+
+/**
+ * Los números se mandan en E.164 cuando se pueden interpretar (sin indicativo
+ * se asume Colombia), para que "57 300…" o "300 123 4567" coincidan con lo
+ * guardado. Si no se reconoce, se manda tal cual y el backend decide.
+ */
+function normalizeIdentifier(raw: string): string {
+  const value = raw.trim();
+  if (!looksLikePhone(value)) return value;
+  const parsed = parsePhoneNumber(value, "CO");
+  return parsed?.isPossible() ? parsed.number : value;
+}
 
 export default function LoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<LoginMode>("email");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  function toggleMode() {
-    setMode((prev) => (prev === "email" ? "phone" : "email"));
-    setErrorMsg(null);
-  }
-
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrorMsg(null);
 
-    const identifier = mode === "phone" ? phone.trim() : email.trim();
-    if (!identifier) {
-      setErrorMsg(
-        mode === "phone" ? "Escribe tu número." : "Escribe tu correo."
-      );
+    const trimmed = identifier.trim();
+    if (!trimmed) {
+      setErrorMsg("Escribe tu correo o tu número.");
       return;
     }
-    if (mode === "phone" && !isPhoneNumberUsable(identifier)) {
-      setErrorMsg("Ese número no está completo. Revisa el país y los dígitos.");
-      return;
-    }
+    const isPhone = looksLikePhone(trimmed);
 
     setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier, password }),
+        body: JSON.stringify({
+          identifier: normalizeIdentifier(trimmed),
+          password,
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -61,7 +65,7 @@ export default function LoginPage() {
         setErrorMsg(
           res.status === 401
             ? `Ese ${
-                mode === "phone" ? "número" : "correo"
+                isPhone ? "número" : "correo"
               } y esa contraseña no coinciden.`
             : typeof data.error === "string"
               ? data.error
@@ -113,8 +117,7 @@ export default function LoginPage() {
               Entra a tu cuenta
             </h1>
             <p className="mt-2 text-[0.92rem] leading-relaxed text-site-muted">
-              Usa el {mode === "phone" ? "número" : "correo"} con el que te
-              registraron.
+              Usa el correo o el número con el que te registraron.
             </p>
 
             <form onSubmit={onSubmit} className="mt-7">
@@ -125,34 +128,23 @@ export default function LoginPage() {
                * huérfano arriba del campo.
                */}
               <div className="divide-y divide-site-line overflow-hidden rounded-xl border border-site-line bg-site-raised/40 transition focus-within:border-premium_pink/55 focus-within:shadow-[0_0_0_3px_var(--site-accent-ring)]">
-                {mode === "email" ? (
-                  <Field label="Correo" htmlFor="login-email">
-                    <input
-                      id="login-email"
-                      type="email"
-                      name="email"
-                      autoComplete="email"
-                      autoCapitalize="none"
-                      spellCheck={false}
-                      required
-                      autoFocus
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="tucorreo@correo.com"
-                      className={INNER_INPUT}
-                    />
-                  </Field>
-                ) : (
-                  <Field label="Número">
-                    <PhoneNumberField
-                      value={phone}
-                      onChange={setPhone}
-                      className="w-full text-[0.95rem] leading-6 text-site-text"
-                      name="phone"
-                      autoComplete="tel"
-                    />
-                  </Field>
-                )}
+                <Field label="Correo o número" htmlFor="login-identifier">
+                  <input
+                    id="login-identifier"
+                    type="text"
+                    name="username"
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    required
+                    autoFocus
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    placeholder="tucorreo@correo.com o 300 123 4567"
+                    className={INNER_INPUT}
+                  />
+                </Field>
 
                 <Field label="Contraseña" htmlFor="login-password">
                   <div className="flex items-center gap-2">
@@ -238,20 +230,6 @@ export default function LoginPage() {
                 {loading ? "Entrando…" : "Entrar"}
               </button>
 
-              {/*
-               * Cambiar de correo a número es un camino alterno, no una
-               * decisión que haya que tomar antes de empezar: por eso es un
-               * enlace y no un conmutador que compite con los campos.
-               */}
-              <button
-                type="button"
-                onClick={toggleMode}
-                className="mt-4 text-[0.88rem] font-medium text-site-muted underline-offset-4 transition hover:text-site-text hover:underline"
-              >
-                {mode === "email"
-                  ? "Entrar con mi número"
-                  : "Entrar con mi correo"}
-              </button>
             </form>
           </div>
         </div>
