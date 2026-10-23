@@ -114,6 +114,12 @@ export function requestNetflixSessionCode(
   return postJson<CodeResponse>("netflix", "/session_code/", { email });
 }
 
+export function requestNetflixVerificationCode(
+  email: string
+): Promise<StreamingResult<CodeResponse>> {
+  return postJson<CodeResponse>("netflix", "/verification_code/", { email });
+}
+
 export function requestNetflixPasswordReset(
   email: string
 ): Promise<StreamingResult<LinkResponse>> {

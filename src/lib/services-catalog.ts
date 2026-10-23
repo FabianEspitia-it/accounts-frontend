@@ -75,6 +75,12 @@ export const PLATFORMS: Platform[] = [
         kind: "code",
       },
       {
+        slug: "netflix_verification_code",
+        title: "Código de verificación",
+        description: "El código de 6 dígitos que Netflix pide para verificar la cuenta.",
+        kind: "code",
+      },
+      {
         slug: "netflix_password_reset",
         title: "Restablecer contraseña",
         description: "Enlace para cambiar la contraseña de la cuenta.",
